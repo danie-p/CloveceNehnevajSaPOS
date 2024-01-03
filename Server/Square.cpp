@@ -1,64 +1,79 @@
 #include "Square.h"
-#include <iostream>
+#include <string>
 
-void Common::Square::display()
+std::string Common::Square::toString()
 {
+    std::string result;
+
 	if (!this->isEmpty())
 	{
 		switch (pawn->player->getColor())
 		{
 		case 'R':
-			std::cout << RED;
+            result += RED;
 			break;
 		case 'G':
-			std::cout << GREEN;
+            result += GREEN;
 			break;
 		case 'B':
-			std::cout << BLUE;
+            result += BLUE;
 			break;
 		case 'Y':
-			std::cout << YELLOW;
-			break;
-		default:
+            result += YELLOW;
 			break;
 		}
-		std::cout << pawn->number << " " << RESET;
+        result += pawn->number;
+        result.append(" ").append(RESET);
 	}
 	else
 	{
 		switch (type)
 		{
 		case Common::SquareType::Path:
-			std::cout << ". " << RESET;
+            result += ". ";
 			break;
+        case Common::SquareType::PathR:
+            result.append(RED).append(". ");
+            break;
+        case Common::SquareType::PathG:
+            result.append(GREEN).append(". ");
+            break;
+        case Common::SquareType::PathB:
+            result.append(BLUE).append(". ");
+            break;
+        case Common::SquareType::PathY:
+            result.append(YELLOW).append(". ");
+            break;
 		case Common::SquareType::HomeR:
-			std::cout << RED << "r " << RESET;
+            result.append(RED).append("r ");
 			break;
 		case Common::SquareType::HomeG:
-			std::cout << GREEN << "g " << RESET;
+            result.append(GREEN).append("g ");
 			break;
 		case Common::SquareType::HomeB:
-			std::cout << BLUE << "b " << RESET;
+            result.append(BLUE).append("b ");
 			break;
 		case Common::SquareType::HomeY:
-			std::cout << YELLOW << "y " << RESET;
+            result.append(YELLOW).append("y ");
 			break;
 		case Common::SquareType::StartR:
-			std::cout << RED << "# " << RESET;
+            result.append(RED).append("# ");
 			break;
 		case Common::SquareType::StartG:
-			std::cout << GREEN << "# " << RESET;
+            result.append(GREEN).append("# ");
 			break;
 		case Common::SquareType::StartB:
-			std::cout << BLUE << "# " << RESET;
+            result.append(BLUE).append("# ");
 			break;
 		case Common::SquareType::StartY:
-			std::cout << YELLOW << "# " << RESET;
+            result.append(YELLOW).append("# ");
 			break;
 		case Common::SquareType::None:
-		default:
-			std::cout << "  ";
+            result += "  ";
 			break;
 		}
+        result += RESET;
 	}
-};
+
+    return result;
+}

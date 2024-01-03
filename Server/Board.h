@@ -5,15 +5,13 @@
 
 namespace Common
 {
-    // pri hladani volnej/zaplnenej pozicie v Start/Home staci prehladavat danu lokalitu a nie cely Grid
-    // pripadne vyuzit prislusny vektor pre dany Start/Home
-
     class Board
     {
     public:
         Board();
+        std::string toString();
         void display();
-        bool movePawn(int playerId, int pawnNum, int moveSteps);	// move playerId's pawnNum-th pawn by moveSteps steps
+        bool movePawn(int playerId, char pawnNum, int moveSteps);	// move playerId's pawnNum-th pawn by moveSteps steps
         bool isGameOver();	// check if game is over
         int getWinner();	// get winner id
 
@@ -26,11 +24,11 @@ namespace Common
         {
             for (auto& row : this->grid)
             {
-                for (auto& square : row)
-                {
-                    if (square.getPawn()->player->getId() == playerId && square.getPawn()->number == pawnNum)
-                    {
-                        return square;
+                for (auto& square : row) {
+                    if (square.getPawn()) {
+                        if (square.getPawn()->player->getId() == playerId && square.getPawn()->number == pawnNum) {
+                            return square;
+                        }
                     }
                 }
             }
@@ -61,7 +59,7 @@ namespace Common
         bool isOnPath(Pawn& pawn, int& indexOnPath);
         void getInitialPathSquareCoords(Pawn& pawn, int& row, int& column);
         void tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare);
-        void movePawnOut(Square& newSquare, Pawn& pawn);
+        bool movePawnOut(Square& newSquare, Pawn& pawn);
 
         bool gameOver;
         int winner;

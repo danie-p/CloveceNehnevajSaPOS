@@ -22,6 +22,10 @@ namespace Common
 	enum class SquareType
 	{
 		Path,
+        PathR,
+        PathG,
+        PathB,
+        PathY,
 		StartR,
 		StartG,
 		StartB,
@@ -36,7 +40,7 @@ namespace Common
 	class Square
 	{
 	public:
-		void display();
+		std::string toString();
 		SquareType getSquareType() { return this->type; };
 		bool isEmpty() { return this->empty; };
 		Pawn* getPawn() { return this->pawn; };

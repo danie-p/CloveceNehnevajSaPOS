@@ -7,6 +7,7 @@ namespace Common
 	class Player
 	{
 	public:
+        Player(int id, int gameId, char color) : Id(id), GameId(gameId), Color(color) {};
 		int getId() const { return this->Id; };
 		std::string& getNick() { return this->Nick; };
 		int getScore() const { return this->Score; };
@@ -22,7 +23,7 @@ namespace Common
 	private:
 		int Id;
 		std::string Nick = "IvanTheSpaceBiker";
-		int Score;
+		int Score = 0;
 		int GameId;
 		char Color;
 	};

@@ -13,42 +13,134 @@ Common::Board::Board() :
     this->reorderHomeY();
 }
 
-void Common::Board::display()
+void Common::Board::initializeGrid()
 {
-    std::cout << "-------------------------\n";
-    for (auto& row : this->grid)
+    /*
+    Player* player = new Player(1, 42, 'R');
+    Player* player2 = new Player(2, 42, 'B');
+     */
+    char counterR = '1';
+    char counterG = '1';
+    char counterB = '1';
+    char counterY = '1';
+
+    for (size_t i = 0; i < GRID_ROWS; i++)
     {
-        std::cout << "| ";
-        for (auto& square : row)
+        for (size_t j = 0; j < GRID_COLUMNS; j++)
         {
-            square.display();
+            Square& square = this->grid.at(i).at(j);
+
+            // start red
+            if (i == 0 && j == 0 || i == 0 && j == 1 ||
+                i == 1 && j == 0 || i == 1 && j == 1)
+            {
+                square.setSquareType(SquareType::StartR);
+                /*
+                square.setEmpty(false);
+                square.setPawn(new Pawn(counterR, player));
+                counterR++;
+                 */
+                this->startR.push_back(&square);
+            }
+
+            // start blue
+            if (i == 0 && j == GRID_COLUMNS - 2 || i == 0 && j == GRID_COLUMNS - 1 ||
+                i == 1 && j == GRID_COLUMNS - 2 || i == 1 && j == GRID_COLUMNS - 1)
+            {
+                square.setSquareType(SquareType::StartB);
+                /*
+                square.setEmpty(false);
+                square.setPawn(new Pawn(counterB, player2));
+                counterB++;
+                 */
+                this->startB.push_back(&square);
+            }
+
+            // start yellow
+            if (i == GRID_ROWS - 2 && j == 0 || i == GRID_ROWS - 2 && j == 1 ||
+                i == GRID_ROWS - 1 && j == 0 || i == GRID_ROWS - 1 && j == 1)
+            {
+                square.setSquareType(SquareType::StartY);
+                /*square.setEmpty(false);
+                square.setPawn();
+                counterY++;
+                 */
+                this->startY.push_back(&square);
+            }
+
+            // start green
+            if (i == GRID_ROWS - 2 && j == GRID_COLUMNS - 2 || i == GRID_ROWS - 2 && j == GRID_COLUMNS - 1 ||
+                i == GRID_ROWS - 1 && j == GRID_COLUMNS - 2 || i == GRID_ROWS - 1 && j == GRID_COLUMNS - 1)
+            {
+                square.setSquareType(SquareType::StartG);
+                /*square.setEmpty(false);
+                square.setPawn();
+                counterG++;
+                 */
+                this->startG.push_back(&square);
+            }
+
+            // home blue
+            if (i >= 1 && i <= 4 && j == 5)
+            {
+                square.setSquareType(SquareType::HomeB);
+                this->homeB.push_back(&square);
+            }
+
+            // home yellow
+            if (i >= 6 && i <= 9 && j == 5)
+            {
+                square.setSquareType(SquareType::HomeY);
+                this->homeY.push_back(&square);
+            }
+
+            // home red
+            if (i == 5 && j >= 1 && j <= 4)
+            {
+                square.setSquareType(SquareType::HomeR);
+                this->homeR.push_back(&square);
+            }
+
+            // home green
+            if (i == 5 && j >= 6 && j <= 9)
+            {
+                square.setSquareType(SquareType::HomeG);
+                this->homeG.push_back(&square);
+            }
+
+            if (i != 5 && j == 4 || i != 5 && j == 6 || i == 4 && j != 5 || i == 6 && j != 5 ||
+                i == 0 && j == 5 || i == GRID_ROWS - 1 && j == 5 || i == 5 && j == 0 || i == 5 && j == GRID_COLUMNS - 1)
+            {
+                square.setSquareType(SquareType::Path);
+                this->path.push_back(&square);
+            }
+
+            if (i == 4 && j == 0) square.setSquareType(SquareType::PathR);
+            if (i == 0 && j == 6) square.setSquareType(SquareType::PathB);
+            if (i == 6 && j == GRID_COLUMNS - 1) square.setSquareType(SquareType::PathG);
+            if (i == GRID_ROWS - 1 && j == 4) square.setSquareType(SquareType::PathY);
         }
-        std::cout << "|\n";
     }
-    std::cout << "-------------------------\n";
 }
 
-bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
+void Common::Board::display()
 {
+    std::cout << this->toString();
+}
+
+bool Common::Board::movePawn(int playerId, char pawnNum, int moveSteps)
+{
+    pawnNum = '0' + pawnNum;
     Square& oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
     Pawn& pawn = *oldSquare.getPawn();
 
     int index = -1;
 
-    // ak je v starte
-    // len ak moveSteps == 6, tak sa pohne zo startu na vychodzi bod na path (isInStart = false, isOnPath = true, square stary isEmpty = true, square novy isEmpty = false)
-    // vstupom na board moze niekoho vyhodit (kto stoji na jeho vychodziom bode)
-    // vyhodenie
-    // inak sa nic nestane
-
+    // === START ===
     if (this->isInStart(pawn, index)) // tu index nepotrebujem
     {
         if (moveSteps == 6)
         {
-            pawn.isInStart = false;
-            pawn.isOnPath = true;
-            oldSquare.setEmpty(true);
-            oldSquare.setPawn(nullptr);
             int row;
             int column;
             this->getInitialPathSquareCoords(pawn, row, column);
@@ -56,10 +148,13 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
 
             if (!newSquare.isEmpty())
             {
-                this->movePawnOut(newSquare, pawn);
-                return true;
+                if (!this->movePawnOut(newSquare, pawn)) return true;
             }
 
+            pawn.isInStart = false;
+            pawn.isOnPath = true;
+            oldSquare.setEmpty(true);
+            oldSquare.setPawn(nullptr);
             newSquare.setEmpty(false);
             newSquare.setPawn(&pawn);
             std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " from start to path.\n";
@@ -69,16 +164,7 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
         return true;
     }
 
-    // ak je na path
-    // ak moze ist do domceku (je v dostupnej vzdialenosti od domceku)
-    // ide na danu poziciu do domceku (isOnPath = false, isAtHome = true, square stary isEmpty = true, square novy isEmpty = false)
-    // ak aj je v dostupnej vzdialenosti od domceku, ale dane miesto v domceku je obsadene, tak sa nic nestane
-
-    // normalne: posunie sa o moveSteps na path (square stary isEmpty = true, square novy isEmpty = false)
-    // ak niekoho vyhodi: posunie sa o moveSteps na path (square stary isEmpty = true, square novy isEmpty = false)
-    // nemoze vyhodit sam seba (nic sa nestane)
-    // vyhodeny panacik sa musi vratit do startu (isInStart = true, isOnPath = false, square stary isEmpty = false, square novy isEmpty = false)
-
+    // === PATH ===
     if (this->isOnPath(pawn, index))
     {
         switch (pawn.player->getColor())
@@ -89,10 +175,9 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
                     std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
                     return true;
                 }
-                if (index + moveSteps >= 32 && index + moveSteps < 36)
+                if (!(index >= 32 && index <= 35) && index + moveSteps >= 32 && index + moveSteps < 36)
                 {
-                    // uz nemoze pokracovat dalej po path, ale musi ist do domceka/cakat, kym sa bude moct dostat na prazdne policko do domceka
-                    int indexHome = (index + moveSteps) % 30 - 1;
+                    int indexHome = (index + moveSteps) % 30 - 2;
                     this->tryToGoHome(&this->homeR, indexHome, pawn, oldSquare);
                     return true;
                 }
@@ -103,9 +188,9 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
                     std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
                     return true;
                 }
-                    if (index + moveSteps >= 12 && index + moveSteps < 16)
+                if (!(index >= 12 && index <= 15) && index + moveSteps >= 12 && index + moveSteps < 16)
                 {
-                    int indexHome = (index + moveSteps) % 10 - 1;
+                    int indexHome = (index + moveSteps) % 10 - 2;
                     this->tryToGoHome(&this->homeG, indexHome, pawn, oldSquare);
                     return true;
                 }
@@ -116,9 +201,9 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
                     std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
                     return true;
                 }
-                if ((index + moveSteps) % 40 >= 2 && (index + moveSteps) % 40 < 6)
+                if (!(index >= 2 && index <= 5) && (index + moveSteps) % 40 >= 2 && (index + moveSteps) % 40 < 6)
                 {
-                    int indexHome = (index + moveSteps) % 40 - 1;
+                    int indexHome = (index + moveSteps) % 40 - 2;
                     this->tryToGoHome(&this->homeB, indexHome, pawn, oldSquare);
                     return true;
                 }
@@ -129,9 +214,9 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
                     std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
                     return true;
                 }
-                if (index + moveSteps >= 22 && index + moveSteps < 26)
+                if (!(index >= 22 && index <= 25) && index + moveSteps >= 22 && index + moveSteps < 26)
                 {
-                    int indexHome = (index + moveSteps) % 20 - 1;
+                    int indexHome = (index + moveSteps) % 20 - 2;
                     this->tryToGoHome(&this->homeY, indexHome, pawn, oldSquare);
                     return true;
                 }
@@ -140,16 +225,15 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
                 break;
         }
 
-        oldSquare.setEmpty(true);
-        oldSquare.setPawn(nullptr);
         Square& newSquare = *this->path.at((index + moveSteps) % 40);
 
         if (!newSquare.isEmpty())
         {
-            this->movePawnOut(newSquare, pawn);
-            return true;
+            if (!this->movePawnOut(newSquare, pawn)) return true;
         }
 
+        oldSquare.setEmpty(true);
+        oldSquare.setPawn(nullptr);
         newSquare.setEmpty(false);
         newSquare.setPawn(&pawn);
 
@@ -157,9 +241,7 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
         return true;
     }
 
-    // ak je v domceku
-    // a moze sa vramci domceku pohnut na volne miesto o moveSteps (square stary isEmpty = true, square novy isEmpty = false)
-
+    // === HOME ===
     if (this->isAtHome(pawn, index)) {
         if (index + moveSteps <= 3) {
             std::vector<Square*>* home = nullptr;
@@ -207,92 +289,6 @@ bool Common::Board::isGameOver()
 int Common::Board::getWinner()
 {
     return 0;
-}
-
-void Common::Board::initializeGrid()
-{
-    for (size_t i = 0; i < GRID_ROWS; i++)
-    {
-        for (size_t j = 0; j < GRID_COLUMNS; j++)
-        {
-            Square& square = this->grid.at(i).at(j);
-
-            // start red
-            if (i == 0 && j == 0 || i == 0 && j == 1 ||
-                i == 1 && j == 0 || i == 1 && j == 1)
-            {
-                square.setSquareType(SquareType::StartR);
-                /*square.isEmpty = false;
-                square.pawn = ;*/
-                this->startR.push_back(&square);
-            }
-
-            // start blue
-            if (i == 0 && j == GRID_COLUMNS - 2 || i == 0 && j == GRID_COLUMNS - 1 ||
-                i == 1 && j == GRID_COLUMNS - 2 || i == 1 && j == GRID_COLUMNS - 1)
-            {
-                square.setSquareType(SquareType::StartB);
-                /*square.isEmpty = false;
-                square.pawn = ;*/
-                this->startB.push_back(&square);
-            }
-
-            // start yellow
-            if (i == GRID_ROWS - 2 && j == 0 || i == GRID_ROWS - 2 && j == 1 ||
-                i == GRID_ROWS - 1 && j == 0 || i == GRID_ROWS - 1 && j == 1)
-            {
-                square.setSquareType(SquareType::StartY);
-                /*square.isEmpty = false;
-                square.pawn = ;*/
-                this->startY.push_back(&square);
-            }
-
-            // start green
-            if (i == GRID_ROWS - 2 && j == GRID_COLUMNS - 2 || i == GRID_ROWS - 2 && j == GRID_COLUMNS - 1 ||
-                i == GRID_ROWS - 1 && j == GRID_COLUMNS - 2 || i == GRID_ROWS - 1 && j == GRID_COLUMNS - 1)
-            {
-                square.setSquareType(SquareType::StartG);
-                /*square.isEmpty = false;
-                square.pawn = ;*/
-                this->startG.push_back(&square);
-            }
-
-            // home blue
-            if (i >= 1 && i <= 4 && j == 5)
-            {
-                square.setSquareType(SquareType::HomeB);
-                this->homeB.push_back(&square);
-            }
-
-            // home yellow
-            if (i >= 6 && i <= 9 && j == 5)
-            {
-                square.setSquareType(SquareType::HomeY);
-                this->homeY.push_back(&square);
-            }
-
-            // home red
-            if (i == 5 && j >= 1 && j <= 4)
-            {
-                square.setSquareType(SquareType::HomeR);
-                this->homeR.push_back(&square);
-            }
-
-            // home green
-            if (i == 5 && j >= 6 && j <= 9)
-            {
-                square.setSquareType(SquareType::HomeG);
-                this->homeG.push_back(&square);
-            }
-
-            if (i != 5 && j == 4 || i != 5 && j == 6 || i == 4 && j != 5 || i == 6 && j != 5 ||
-                i == 0 && j == 5 || i == GRID_ROWS - 1 && j == 5 || i == 5 && j == 0 || i == 5 && j == GRID_COLUMNS - 1)
-            {
-                square.setSquareType(SquareType::Path);
-                this->path.push_back(&square);
-            }
-        }
-    }
 }
 
 // reorders the path vector so that square indices are placed in order of gameplay
@@ -364,8 +360,6 @@ bool Common::Board::isInStart(Pawn& pawn, int& indexInStart)
             case 'Y':
                 start = &this->startY;
                 break;
-            default:
-                break;
         }
 
         if (start)
@@ -403,8 +397,6 @@ bool Common::Board::isAtHome(Pawn& pawn, int& indexAtHome)
                 break;
             case 'Y':
                 home = &this->homeY;
-                break;
-            default:
                 break;
         }
 
@@ -462,14 +454,12 @@ void Common::Board::getInitialPathSquareCoords(Pawn& pawn, int& row, int& column
             row = GRID_ROWS - 1;
             column = 4;
             break;
-        default:
-            break;
     }
 }
 
 void Common::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare)
 {
-    int pawnNum = pawn.number;
+    char pawnNum = pawn.number;
     Square* squareHome = (*home).at(indexHome);
     if (squareHome->isEmpty())
     {
@@ -488,17 +478,18 @@ void Common::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn&
     }
 }
 
-void Common::Board::movePawnOut(Common::Square &newSquare, Pawn& pawn)
+bool Common::Board::movePawnOut(Common::Square &newSquare, Pawn& pawn)
 {
     Pawn* pawnOut = newSquare.getPawn();
 
     if (pawn.player == pawnOut->player)
     {
         std::cout << "Player " << pawn.player->getNick() << " couldn't make the move and kick out their own pawn.\n";
+        return false;
     }
     else
     {
-        int indexInStart = pawnOut->number - 1;
+        int indexInStart = pawnOut->number - '0' - 1;
         pawnOut->isInStart = true;
         pawnOut->isOnPath = false;
 
@@ -516,8 +507,6 @@ void Common::Board::movePawnOut(Common::Square &newSquare, Pawn& pawn)
             case 'Y':
                 start = &this->startY;
                 break;
-            default:
-                break;
         }
 
         if (start) {
@@ -528,4 +517,22 @@ void Common::Board::movePawnOut(Common::Square &newSquare, Pawn& pawn)
 
         std::cout << "Sorry! " << pawn.player->getNick() << " kicked out " << pawnOut->player->getNick() << "\'s pawn " << pawnOut->number << " from path to start.\n";
     }
+    return true;
+}
+
+std::string Common::Board::toString() {
+    std::string result;
+    result += "-------------------------\n";
+    for (auto& row : this->grid)
+    {
+        result += "| ";
+        for (auto& square : row)
+        {
+            result += square.toString();
+        }
+        result += "|\n";
+    }
+    result += "-------------------------\n";
+
+    return result;
 }

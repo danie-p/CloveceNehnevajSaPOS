@@ -8,7 +8,7 @@ int main() {
     std::cout << "To join an existing game, use the client app!\n";
     std::cout << "*****************************************\n\n";
 
-    std::cout << "Type 'create' to create new game server";
+    std::cout << "Type 'create' to create new game server\n";
     std::cout << "Input: ";
     std::string input;
     std::cin >> input;
