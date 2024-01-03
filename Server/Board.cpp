@@ -2,7 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
-Common::Board::Board() :
+Server::Board::Board() :
         grid(GRID_ROWS, std::vector<Square>(GRID_COLUMNS)),
         gameOver(false),
         winner(-1)
@@ -13,7 +13,7 @@ Common::Board::Board() :
     this->reorderHomeY();
 }
 
-void Common::Board::display()
+void Server::Board::display()
 {
     std::cout << "-------------------------\n";
     for (auto& row : this->grid)
@@ -28,7 +28,7 @@ void Common::Board::display()
     std::cout << "-------------------------\n";
 }
 
-bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
+bool Server::Board::movePawn(int playerId, int pawnNum, int moveSteps)
 {
     Square& oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
     Pawn& pawn = *oldSquare.getPawn();
@@ -165,17 +165,17 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
     return false;
 }
 
-bool Common::Board::isGameOver()
+bool Server::Board::isGameOver()
 {
     return false;
 }
 
-int Common::Board::getWinner()
+int Server::Board::getWinner()
 {
     return 0;
 }
 
-void Common::Board::initializeGrid()
+void Server::Board::initializeGrid()
 {
     for (size_t i = 0; i < GRID_ROWS; i++)
     {
@@ -262,7 +262,7 @@ void Common::Board::initializeGrid()
 }
 
 // reorders the path vector so that square indices are placed in order of gameplay
-void Common::Board::reorderPath()
+void Server::Board::reorderPath()
 {
     std::swap(this->path.at(3), this->path.at(4));
     std::swap(this->path.at(4), this->path.at(6));
@@ -301,17 +301,17 @@ void Common::Board::reorderPath()
     std::swap(this->path.at(38), this->path.at(39));
 }
 
-void Common::Board::reorderHomeG()
+void Server::Board::reorderHomeG()
 {
     std::reverse(this->homeG.begin(), this->homeG.end());
 }
 
-void Common::Board::reorderHomeY()
+void Server::Board::reorderHomeY()
 {
     std::reverse(this->homeY.begin(), this->homeY.end());
 }
 
-bool Common::Board::isInStart(Pawn& pawn, int& indexInStart)
+bool Server::Board::isInStart(Pawn& pawn, int& indexInStart)
 {
     if (pawn.isInStart)
     {
@@ -350,7 +350,7 @@ bool Common::Board::isInStart(Pawn& pawn, int& indexInStart)
     return false;
 }
 
-bool Common::Board::isAtHome(Pawn& pawn, int& indexAtHome)
+bool Server::Board::isAtHome(Pawn& pawn, int& indexAtHome)
 {
     int index = -1;
     if (pawn.isAtHome)
@@ -390,7 +390,7 @@ bool Common::Board::isAtHome(Pawn& pawn, int& indexAtHome)
     return false;
 }
 
-bool Common::Board::isOnPath(Pawn& pawn, int& indexOnPath)
+bool Server::Board::isOnPath(Pawn& pawn, int& indexOnPath)
 {
     int index = -1;
     if (pawn.isOnPath)
@@ -408,7 +408,7 @@ bool Common::Board::isOnPath(Pawn& pawn, int& indexOnPath)
     return false;
 }
 
-void Common::Board::getInitialPathSquareCoords(Pawn& pawn, int& row, int& column)
+void Server::Board::getInitialPathSquareCoords(Pawn& pawn, int& row, int& column)
 {
     switch (pawn.player->getColor())
     {
@@ -433,7 +433,7 @@ void Common::Board::getInitialPathSquareCoords(Pawn& pawn, int& row, int& column
     }
 }
 
-void Common::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare)
+void Server::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare)
 {
     int pawnNum = pawn.number;
     Square* squareHome = (*home).at(indexHome);
@@ -454,7 +454,7 @@ void Common::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn&
     }
 }
 
-void Common::Board::movePawnOut(Common::Square &newSquare, Pawn& pawn)
+void Server::Board::movePawnOut(Server::Square &newSquare, Pawn& pawn)
 {
     Pawn* pawnOut = newSquare.getPawn();
 

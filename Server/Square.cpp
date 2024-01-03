@@ -1,7 +1,7 @@
 #include "Square.h"
 #include <iostream>
 
-void Common::Square::display()
+void Server::Square::display()
 {
 	if (!this->isEmpty())
 	{
@@ -28,34 +28,34 @@ void Common::Square::display()
 	{
 		switch (type)
 		{
-		case Common::SquareType::Path:
+		case Server::SquareType::Path:
 			std::cout << ". " << RESET;
 			break;
-		case Common::SquareType::HomeR:
+		case Server::SquareType::HomeR:
 			std::cout << RED << "r " << RESET;
 			break;
-		case Common::SquareType::HomeG:
+		case Server::SquareType::HomeG:
 			std::cout << GREEN << "g " << RESET;
 			break;
-		case Common::SquareType::HomeB:
+		case Server::SquareType::HomeB:
 			std::cout << BLUE << "b " << RESET;
 			break;
-		case Common::SquareType::HomeY:
+		case Server::SquareType::HomeY:
 			std::cout << YELLOW << "y " << RESET;
 			break;
-		case Common::SquareType::StartR:
+		case Server::SquareType::StartR:
 			std::cout << RED << "# " << RESET;
 			break;
-		case Common::SquareType::StartG:
+		case Server::SquareType::StartG:
 			std::cout << GREEN << "# " << RESET;
 			break;
-		case Common::SquareType::StartB:
+		case Server::SquareType::StartB:
 			std::cout << BLUE << "# " << RESET;
 			break;
-		case Common::SquareType::StartY:
+		case Server::SquareType::StartY:
 			std::cout << YELLOW << "# " << RESET;
 			break;
-		case Common::SquareType::None:
+		case Server::SquareType::None:
 		default:
 			std::cout << "  ";
 			break;

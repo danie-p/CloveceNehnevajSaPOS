@@ -7,7 +7,7 @@
 #define YELLOW  "\033[33m"
 #define BLUE    "\033[34m"
 
-namespace Common
+namespace Server
 {
 	struct Pawn
 	{

@@ -2,7 +2,7 @@
 // Created by Kristian on 3. 1. 2024.
 //
 
-#include "ServerGame.h"
+#include "ServerConnection.h"
 
 void Server::Create(int port) {
     if (port <= 0) {
@@ -57,8 +57,15 @@ void Server::Create(int port) {
     }
 }
 
-void Server::PlayGame(int *clientSockets) {
+void Server::PlayGame(int clientSockets[]) {
+    std::vector<int> sockets;
+    for (int i = 0; i < PLAYER_COUNT; ++i) {
+        sockets.push_back(clientSockets[i]);
+    }
 
+    Game game(sockets);
+    game.Begin();
+    game.End();
 }
 
 

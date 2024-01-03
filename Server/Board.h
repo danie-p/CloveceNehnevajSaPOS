@@ -3,10 +3,10 @@
 #include <vector>
 #include "Square.h"
 
-namespace Common
+namespace Server
 {
-    // pri hladani volnej/zaplnenej pozicie v Start/Home staci prehladavat danu lokalitu a nie cely Grid
-    // pripadne vyuzit prislusny vektor pre dany Start/Home
+    // pri hladani volnej/zaplnenej pozicie v Begin/Home staci prehladavat danu lokalitu a nie cely Grid
+    // pripadne vyuzit prislusny vektor pre dany Begin/Home
 
     class Board
     {
