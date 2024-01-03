@@ -56,45 +56,17 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
 
             if (!newSquare.isEmpty())
             {
-                // vyhodenie
-                Pawn* pawnOut = newSquare.getPawn();
-                int indexInStart = pawnOut->number - 1;
-                pawnOut->isInStart = true;
-                pawnOut->isOnPath = false;
-
-                std::vector<Square*>* start = nullptr;
-                switch (pawnOut->player->getColor())
-                {
-                    case 'R':
-                        start = &this->startR;
-                        break;
-                    case 'G':
-                        start = &this->startG;
-                        break;
-                    case 'B':
-                        start = &this->startB;
-                        break;
-                    case 'Y':
-                        start = &this->startY;
-                        break;
-                    default:
-                        break;
-                }
-
-                if (start)
-                {
-                    Square& pawnOutSquare = *start->at(indexInStart);
-                    pawnOutSquare.setEmpty(false);
-                    pawnOutSquare.setPawn(pawnOut);
-                }
-                std::cout << "Sorry! " << pawn.player->getNick() << " kicked out " << pawnOut->player->getNick() << "\'s pawn " << pawnOut->number << " from path to start.\n";
+                this->movePawnOut(newSquare, pawn);
+                return true;
             }
 
             newSquare.setEmpty(false);
             newSquare.setPawn(&pawn);
             std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " from start to path.\n";
+            return true;
         }
         std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " out of start because they didn't roll a 6.\n";
+        return true;
     }
 
     // ak je na path
@@ -112,44 +84,83 @@ bool Common::Board::movePawn(int playerId, int pawnNum, int moveSteps)
         switch (pawn.player->getColor())
         {
             case 'R':
+                if (index < 32 && index + moveSteps >= 36)
+                {
+                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    return true;
+                }
                 if (index + moveSteps >= 32 && index + moveSteps < 36)
                 {
                     // uz nemoze pokracovat dalej po path, ale musi ist do domceka/cakat, kym sa bude moct dostat na prazdne policko do domceka
                     int indexHome = (index + moveSteps) % 30 - 1;
                     this->tryToGoHome(&this->homeR, indexHome, pawn, oldSquare);
+                    return true;
                 }
                 break;
             case 'G':
-                if (index + moveSteps >= 12 && index + moveSteps < 16)
+                if (index < 12 && index + moveSteps >= 16)
+                {
+                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    return true;
+                }
+                    if (index + moveSteps >= 12 && index + moveSteps < 16)
                 {
                     int indexHome = (index + moveSteps) % 10 - 1;
                     this->tryToGoHome(&this->homeG, indexHome, pawn, oldSquare);
+                    return true;
                 }
                 break;
             case 'B':
+                if (index < 2 && index + moveSteps >= 6)
+                {
+                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    return true;
+                }
                 if ((index + moveSteps) % 40 >= 2 && (index + moveSteps) % 40 < 6)
                 {
                     int indexHome = (index + moveSteps) % 40 - 1;
                     this->tryToGoHome(&this->homeB, indexHome, pawn, oldSquare);
+                    return true;
                 }
                 break;
             case 'Y':
+                if (index < 22 && index + moveSteps >= 26)
+                {
+                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    return true;
+                }
                 if (index + moveSteps >= 22 && index + moveSteps < 26)
                 {
                     int indexHome = (index + moveSteps) % 20 - 1;
                     this->tryToGoHome(&this->homeY, indexHome, pawn, oldSquare);
+                    return true;
                 }
                 break;
             default:
                 break;
         }
+
+        oldSquare.setEmpty(true);
+        oldSquare.setPawn(nullptr);
+        Square& newSquare = *this->path.at((index + moveSteps) % 40);
+
+        if (!newSquare.isEmpty())
+        {
+            this->movePawnOut(newSquare, pawn);
+            return true;
+        }
+
+        newSquare.setEmpty(false);
+        newSquare.setPawn(&pawn);
+
+        std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " along the path.\n";
+        return true;
     }
 
     // ak je v domceku
     // a moze sa vramci domceku pohnut na volne miesto o moveSteps (square stary isEmpty = true, square novy isEmpty = false)
 
-    // osobitna metodka pre vyhodenie?
-    // (isInStart = true, isOnPath = false, square stary isEmpty = false, square novy isEmpty = false)
+    if (this->isAtHome(pawn, index))
 
     return false;
 }
@@ -440,5 +451,47 @@ void Common::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn&
     else
     {
         std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " to home because the place is already occupied.\n";
+    }
+}
+
+void Common::Board::movePawnOut(Common::Square &newSquare, Pawn& pawn)
+{
+    Pawn* pawnOut = newSquare.getPawn();
+
+    if (pawn.player == pawnOut->player)
+    {
+        std::cout << "Player " << pawn.player->getNick() << " couldn't make the move and kick out their own pawn.\n";
+    }
+    else
+    {
+        int indexInStart = pawnOut->number - 1;
+        pawnOut->isInStart = true;
+        pawnOut->isOnPath = false;
+
+        std::vector<Square *> *start = nullptr;
+        switch (pawnOut->player->getColor()) {
+            case 'R':
+                start = &this->startR;
+                break;
+            case 'G':
+                start = &this->startG;
+                break;
+            case 'B':
+                start = &this->startB;
+                break;
+            case 'Y':
+                start = &this->startY;
+                break;
+            default:
+                break;
+        }
+
+        if (start) {
+            Square &pawnOutSquare = *start->at(indexInStart);
+            pawnOutSquare.setEmpty(false);
+            pawnOutSquare.setPawn(pawnOut);
+        }
+
+        std::cout << "Sorry! " << pawn.player->getNick() << " kicked out " << pawnOut->player->getNick() << "\'s pawn " << pawnOut->number << " from path to start.\n";
     }
 }
