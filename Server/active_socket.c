@@ -48,11 +48,14 @@ _Bool active_socket_is_reading(struct active_socket* self) {
     return can_read;
 }
 
+// pokus sa precitat data, dostanem socket a buffer na output
 _Bool active_socket_try_get_read_data(struct active_socket* self, struct char_buffer* output) {
     _Bool result = false;
 
     if (pthread_mutex_trylock(&self->mutex_received_data) == 0) {
+        // ziskam prvu spravu z linked listu (FIFO)
         result = linked_list_char_buffer_try_remove_first(&self->received_data, output);
+        // odomknem
         pthread_mutex_unlock(&self->mutex_received_data);
     }
 
@@ -64,6 +67,7 @@ _Bool active_socket_is_end_message(struct active_socket* self, struct char_buffe
         strncmp(message->data, self->end_message, message->size) == 0;
 }
 
+// read
 void active_socket_start_reading(struct active_socket* self) {
 #define BUFFER_LENGTH 100
 
@@ -89,8 +93,10 @@ void active_socket_start_reading(struct active_socket* self) {
 
         FD_SET(self->socket_descriptor, &sockets);
         tv.tv_sec = 1;
+        // select -> NIE je blokovacie volanie; select zabezpeci, ze spravu prijmem v danom case
         select(self->socket_descriptor + 1, &sockets, NULL, NULL, &tv);
         if (FD_ISSET(self->socket_descriptor, &sockets)) {
+            // !! read
             int read_length = read(self->socket_descriptor, buffer, BUFFER_LENGTH);
             if (read_length > 0) {
                 size_t first_i = 0;
@@ -100,6 +106,7 @@ void active_socket_start_reading(struct active_socket* self) {
                         ++last_i;
                     }
                     size_t count = last_i - first_i;
+                    // zoberiem spravu a pridam ju do zoznamu sprav (append)
                     char_buffer_append(&r_buffer, buffer + first_i, count);
                     if (last_i < read_length && buffer[last_i] == SOCKET_TERMINATE_CHAR) {
                         pthread_mutex_lock(&self->mutex_received_data);
@@ -124,11 +131,13 @@ void active_socket_start_reading(struct active_socket* self) {
 #undef BUFFER_LENGTH
 }
 
+// write
+// zapise data (retazec) + prida ukoncovaci znak
 void active_socket_write_data(struct active_socket* self, struct char_buffer* message) {
     pthread_mutex_lock(&self->mutex_writing);
     write(self->socket_descriptor, message->data, message->size);
     write(self->socket_descriptor, SOCKET_TERMINATE_CHAR, sizeof(SOCKET_TERMINATE_CHAR));
-    pthread_mutex_lock(&self->mutex_writing);
+    pthread_mutex_unlock(&self->mutex_writing);
 }
 
 void active_socket_write_end_message(struct active_socket* self) {

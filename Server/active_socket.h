@@ -19,9 +19,22 @@ typedef struct active_socket {
 
 void active_socket_init(struct active_socket* self);
 void active_socket_destroy(struct active_socket* self);
+
+// read = blokujuca operacia = program stoji dovtedy, kym nepridu nejake data
+// aktivny socket nacitava data do svojej pamati (pamat tu realizovana cez linked list)
+    // do linked listu sa pocas citania postupne nacitavaju data
+    // naplna strukturu vsetkymi datami (ked uz prisli kompletne), ktore prisli a su odclenene (na zaklade ukoncovacich znakov)
 void active_socket_start_reading(struct active_socket* self);
+
+// na zastavenie cakania na read
 void active_socket_stop_reading(struct active_socket* self);
+
+// na otestovanie, ci momentalne som v stave citania dat
 _Bool active_socket_is_reading(struct active_socket* self);
+
+// na precitanie dat, ktore som obdrzala
+// neblokujuca = ak su nejake data k dispozicii, vrati mi ich ako char buffer output
+// napr v jednom vlakne prebieha citanie a v inom vlakne spracujem precitane data
 _Bool active_socket_try_get_read_data(struct active_socket* self, struct char_buffer* output);
 _Bool active_socket_is_end_message(struct active_socket* self, struct char_buffer* message);
 

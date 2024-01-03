@@ -8,7 +8,7 @@
 typedef struct passive_socket {
     int socket_descriptor;
     _Bool is_listening;
-    _Bool is_waiting;
+    _Bool is_waiting;   // nad socketom bol zavolany accept a momentalne caka, kym sa k nemu niekto pripoji
     pthread_mutex_t mutex;
     pthread_cond_t waiting_finished;
 } PASSIVE_SOCKET;

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 
+// dynamicka implementacia textu v C <3
 typedef struct char_buffer {
     size_t capacity;
     size_t size;

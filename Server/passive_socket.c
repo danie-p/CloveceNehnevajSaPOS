@@ -7,6 +7,11 @@
 
 #define INVALID_SOCKET -1
 
+// PASIVNY -> nacuva a caka na info od klienta
+// 1. vytvorim 1 objekt typu pasivny socket
+// 2. zavolam jeho konstruktor
+// 3. zavolam start listening
+
 void passive_socket_init(struct passive_socket* self) {
     self->socket_descriptor = INVALID_SOCKET;
     self->is_listening = false;
@@ -26,14 +31,17 @@ void passive_socket_destroy(struct passive_socket* self) {
     pthread_cond_destroy(&self->waiting_finished);
 }
 
+// pasivny socket = taky, na ktorom budem pocuvat
 _Bool passive_socket_start_listening(struct passive_socket* self, short port) {
-    pthread_mutex_lock(&self->mutex);
-    if (self->is_listening || self->is_waiting) {
+    pthread_mutex_lock(&self->mutex); // zamkni mutex
+    // otestujem, ci uz v nejakom vlakne nerobim listen - ak uz robim, tak mi nedovoli robit listen v dalsom vlakne
+    if (self->is_listening || self->is_waiting) {  // pokial pocuvam/cakam
         pthread_mutex_unlock(&self->mutex);
         fprintf(stderr, "passive_socket is listening. Cannot call start_listening again.\n");
         return false;
     }
 
+    // vytvorim socket
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         perror("socket failed.");
@@ -47,14 +55,14 @@ _Bool passive_socket_start_listening(struct passive_socket* self, short port) {
     serverAddress.sin_addr.s_addr = INADDR_ANY; //prijimame spojenia z celeho internetu
     serverAddress.sin_port = htons(port);       //nastavenie portu
 
-    //prepojenie adresy servera so socketom <sys/socket.h>
+    //bindovanie: prepojenie adresy servera so socketom <sys/socket.h>
     if (bind(server_socket, (struct sockaddr *)&serverAddress, sizeof(serverAddress)) < 0) {
         perror("bind failed.");
         pthread_mutex_unlock(&self->mutex);
         return false;
     }
 
-    //server bude prijimat nove spojenia cez socket serverSocket <sys/socket.h>
+    //listen: server bude prijimat nove spojenia cez socket serverSocket <sys/socket.h>
     listen(server_socket, 10);
     self->socket_descriptor = server_socket;
 
@@ -64,6 +72,8 @@ _Bool passive_socket_start_listening(struct passive_socket* self, short port) {
     return true;
 }
 
+// zastavit nacuvanie
+// pozastavenie pasivneho socketu
 void passive_socket_stop_listening(struct passive_socket* self) {
     pthread_mutex_lock(&self->mutex);
     if (!self->is_listening) {
@@ -79,6 +89,7 @@ void passive_socket_stop_listening(struct passive_socket* self) {
     pthread_mutex_unlock(&self->mutex);
 }
 
+// len na otestovanie, ci naozaj je nastaveny ako pasivny socket
 _Bool passive_socket_is_listening(struct passive_socket* self) {
     pthread_mutex_lock(&self->mutex);
     bool is_listening = self->is_listening;
@@ -86,8 +97,17 @@ _Bool passive_socket_is_listening(struct passive_socket* self) {
     return is_listening;
 }
 
+// cakam na klientov
+// vstupny param: pasivny socket, ktory caka na klienta
+// vystupny param: aktivny socket, ktory vrati info o klientovi, ktory sa pripojil
+// accept je BLOKUJUCE systemove volanie (nedokazem ho nasilu ukoncit)
+// ked sa niekto pripoji, cakanie skonci
+// ak chcem, aby sa pripojili 2 stroje, musim wat_for_client zavolat 2x
+    // pre n klientov zavolam v cykle n-krat funkciu wait_for_client
+    // az ked sa dostanem na koniec cyklu, to znamena, ze mam pripojenych n klientov
 _Bool passive_socket_wait_for_client(struct passive_socket* self, struct active_socket* client_sock) {
     pthread_mutex_lock(&self->mutex);
+    // accept mozem volat len v 1 vlakne, nie vo viacerych => skontrolujem, ci uz nebezi na inom vlakne
     if (self->is_waiting) {
         pthread_mutex_unlock(&self->mutex);
         fprintf(stderr, "passive_socket is waiting for client. Cannot call wait_for_client again.\n");
@@ -104,12 +124,16 @@ _Bool passive_socket_wait_for_client(struct passive_socket* self, struct active_
     FD_ZERO(&sockets);
     struct timeval tv;
     tv.tv_usec = 0;
-    while (passive_socket_is_listening(self)) {
+    while (passive_socket_is_listening(self)) { // pokial pocuvam, vznikaju nove pripojenia klientov
         FD_SET(self->socket_descriptor, &sockets);
         tv.tv_sec = 1;
 
+        // select riadi komunikaciu asynchronne
+        // z blokujucich systemovych volani urobim neblokujuce :)
         select(self->socket_descriptor + 1, &sockets, NULL, NULL, &tv);
         if (FD_ISSET(self->socket_descriptor, &sockets)) {
+            // !! accept -> vytvara pripojenia klientov; fd: PASIVNY socket
+            // do client_socket vrati informacie o klientovi
             int client_socket = accept(self->socket_descriptor, (struct sockaddr *) &client_address,
                                        &client_address_length);
 
@@ -118,6 +142,7 @@ _Bool passive_socket_wait_for_client(struct passive_socket* self, struct active_
                 return false;
             }
 
+            // ulozim info o pripojenom klientovi na vystupny parameter
             client_sock->socket_descriptor = client_socket;
 
             pthread_mutex_lock(&self->mutex);
