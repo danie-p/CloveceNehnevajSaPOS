@@ -4,7 +4,17 @@ namespace Client
 {
     void ClientGame::Connect(std::string ipaddr, unsigned int port)
     {
-        socket = MySocket::createConnection(ipaddr, port);
+        try {
+            socket = MySocket::createConnection(ipaddr, port);
+            WaitForStart();
+        }
+        catch (std::exception& e) {
+            std::cout << "Error connecting to server\n";
+        }
+    }
+
+    void ClientGame::WaitForStart() {
+
     }
 
     ClientGame::~ClientGame()

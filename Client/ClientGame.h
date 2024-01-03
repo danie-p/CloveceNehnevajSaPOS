@@ -15,6 +15,7 @@ namespace Client
 		MySocket* socket;
 	public:
 		void Connect(std::string ipaddr, unsigned int port);
+        void WaitForStart();
 		~ClientGame();
 	};
 }
