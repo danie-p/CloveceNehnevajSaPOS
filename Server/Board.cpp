@@ -160,7 +160,41 @@ bool Server::Board::movePawn(int playerId, int pawnNum, int moveSteps)
     // ak je v domceku
     // a moze sa vramci domceku pohnut na volne miesto o moveSteps (square stary isEmpty = true, square novy isEmpty = false)
 
-    if (this->isAtHome(pawn, index))
+    if (this->isAtHome(pawn, index)) {
+        if (index + moveSteps <= 3) {
+            std::vector<Square*>* home = nullptr;
+            switch (pawn.player->getColor()) {
+                case 'R':
+                    home = &homeR;
+                    break;
+                case 'G':
+                    home = &homeG;
+                    break;
+                case 'B':
+                    home = &homeB;
+                    break;
+                case 'Y':
+                    home = &homeY;
+                    break;
+            }
+
+            if (home) {
+                Square& newSquare = *(*home).at(index + moveSteps);
+                if (newSquare.isEmpty()) {
+                    oldSquare.setEmpty(true);
+                    oldSquare.setPawn(nullptr);
+                    newSquare.setEmpty(false);
+                    newSquare.setPawn(&pawn);
+                    std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " further inside the home.\n";
+                } else {
+                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " further inside the home because the place is already occupied.\n";
+                }
+            }
+            return true;
+        }
+        std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " further inside the home.\n";
+        return true;
+    }
 
     return false;
 }
