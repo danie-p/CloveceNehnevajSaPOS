@@ -61,6 +61,7 @@ namespace Common
         bool isOnPath(Pawn& pawn, int& indexOnPath);
         void getInitialPathSquareCoords(Pawn& pawn, int& row, int& column);
         void tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare);
+        void movePawnOut(Square& newSquare, Pawn& pawn);
 
         bool gameOver;
         int winner;
