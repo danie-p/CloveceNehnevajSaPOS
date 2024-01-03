@@ -11,6 +11,12 @@ add_executable(Server ServerMain.cpp
         char_buffer.h
         linked_list.h
         passive_socket.c
-        passive_socket.h)
+        passive_socket.h
+        Board.cpp
+        Board.h
+        Player.cpp
+        Player.h
+        Square.cpp
+        Square.h)
 
 target_link_libraries(Server pthread)
