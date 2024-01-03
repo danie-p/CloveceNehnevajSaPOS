@@ -2,14 +2,17 @@
 // Created by Kristian on 3. 1. 2024.
 //
 
-#ifndef SERVER_SERVERGAME_H
-#define SERVER_SERVERGAME_H
+#ifndef SERVER_SERVERCONNECTION_H
+#define SERVER_SERVERCONNECTION_H
 
 #include <iostream>
+#include <vector>
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+
+#include "Game.h"
 
 //#include <stdio.h>
 //#include <stdlib.h>
@@ -33,4 +36,4 @@ namespace Server {
     void PlayGame(int clientSockets[]);
 }
 
-#endif //SERVER_SERVERGAME_H
+#endif //SERVER_SERVERCONNECTION_H

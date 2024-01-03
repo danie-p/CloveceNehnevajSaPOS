@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace Common
+namespace Server
 {
 	class Player
 	{

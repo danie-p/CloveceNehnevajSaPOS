@@ -1,7 +1,7 @@
 #include "Square.h"
 #include <string>
 
-std::string Common::Square::toString()
+std::string Server::Square::toString()
 {
     std::string result;
 
@@ -29,46 +29,46 @@ std::string Common::Square::toString()
 	{
 		switch (type)
 		{
-		case Common::SquareType::Path:
+		case Server::SquareType::Path:
             result += ". ";
 			break;
-        case Common::SquareType::PathR:
+        case Server::SquareType::PathR:
             result.append(RED).append(". ");
             break;
-        case Common::SquareType::PathG:
+        case Server::SquareType::PathG:
             result.append(GREEN).append(". ");
             break;
-        case Common::SquareType::PathB:
+        case Server::SquareType::PathB:
             result.append(BLUE).append(". ");
             break;
-        case Common::SquareType::PathY:
+        case Server::SquareType::PathY:
             result.append(YELLOW).append(". ");
             break;
-		case Common::SquareType::HomeR:
+		case Server::SquareType::HomeR:
             result.append(RED).append("r ");
 			break;
-		case Common::SquareType::HomeG:
+		case Server::SquareType::HomeG:
             result.append(GREEN).append("g ");
 			break;
-		case Common::SquareType::HomeB:
+		case Server::SquareType::HomeB:
             result.append(BLUE).append("b ");
 			break;
-		case Common::SquareType::HomeY:
+		case Server::SquareType::HomeY:
             result.append(YELLOW).append("y ");
 			break;
-		case Common::SquareType::StartR:
+		case Server::SquareType::StartR:
             result.append(RED).append("# ");
 			break;
-		case Common::SquareType::StartG:
+		case Server::SquareType::StartG:
             result.append(GREEN).append("# ");
 			break;
-		case Common::SquareType::StartB:
+		case Server::SquareType::StartB:
             result.append(BLUE).append("# ");
 			break;
-		case Common::SquareType::StartY:
+		case Server::SquareType::StartY:
             result.append(YELLOW).append("# ");
 			break;
-		case Common::SquareType::None:
+		case Server::SquareType::None:
             result += "  ";
 			break;
 		}

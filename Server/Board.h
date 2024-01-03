@@ -3,7 +3,7 @@
 #include <vector>
 #include "Square.h"
 
-namespace Common
+namespace Server
 {
     class Board
     {
@@ -15,12 +15,12 @@ namespace Common
         bool isGameOver();	// check if game is over
         int getWinner();	// get winner id
 
-        Square& getSquare(int rowIndex, int columnIndex)
+        Server::Square& getSquare(int rowIndex, int columnIndex)
         {
             return this->grid.at(rowIndex).at(columnIndex);
         }
 
-        Square& getSquareWithPlayersPawn(int playerId, int pawnNum)
+        Server::Square& getSquareWithPlayersPawn(int playerId, int pawnNum)
         {
             for (auto& row : this->grid)
             {

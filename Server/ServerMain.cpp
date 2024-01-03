@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ServerGame.h"
+#include "ServerConnection.h"
 
 int main() {
     std::cout << "**** Clovece Nehnevaj Sa ****\n\n";

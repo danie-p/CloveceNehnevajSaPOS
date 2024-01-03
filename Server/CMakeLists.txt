@@ -18,7 +18,9 @@ add_executable(Server ServerMain.cpp
         Player.h
         Square.cpp
         Square.h
-        ServerGame.cpp
-        ServerGame.h)
+        ServerConnection.cpp
+        ServerConnection.h
+        Game.cpp
+        Game.h)
 
 target_link_libraries(Server pthread)
