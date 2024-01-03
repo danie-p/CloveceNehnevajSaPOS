@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "Square.h"
+#include <algorithm>
 
 namespace Common
 {
