@@ -7,24 +7,31 @@
 
 #include <vector>
 #include <thread>
-
+#include <unistd.h>
+#include <condition_variable>
 #include "Board.h"
 
 namespace Server {
-
-    void ManagePlayerTurns(int socket);
-
     class Game {
     private:
         Board board;
+        int turn = 1;
         int playerOnTurn = 0;
+        int playerCount = 0;
         std::vector<int> playerSockets;
         std::vector<std::thread*> playerThreads;
+        std::thread* boardUpdateThread;
+        std::condition_variable cvUpdateBoard;
+        std::mutex mutex;
+        bool turnDone = true;
 
     public:
         Game(std::vector<int> clientSockets);
+        ~Game();
         void Begin();
         void End();
+        void ManagePlayerTurns(int socket);
+        void UpdateBoard();
     };
 
 }
