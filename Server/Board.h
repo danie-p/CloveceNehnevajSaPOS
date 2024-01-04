@@ -13,25 +13,26 @@ namespace Server
         void display();
         bool movePawn(int playerId, char pawnNum, int moveSteps);	// move playerId's pawnNum-th pawn by moveSteps steps
         bool isGameOver();	// check if game is over
-        int getWinner();	// get winner id
+        Player* getWinner();	// get winner id
 
         Server::Square& getSquare(int rowIndex, int columnIndex)
         {
             return this->grid.at(rowIndex).at(columnIndex);
         }
 
-        Server::Square& getSquareWithPlayersPawn(int playerId, int pawnNum)
+        Server::Square* getSquareWithPlayersPawn(int playerId, int pawnNum)
         {
             for (auto& row : this->grid)
             {
                 for (auto& square : row) {
                     if (square.getPawn()) {
                         if (square.getPawn()->player->getId() == playerId && square.getPawn()->number == pawnNum) {
-                            return square;
+                            return &square;
                         }
                     }
                 }
             }
+            return nullptr;
         }
 
     private:
@@ -53,6 +54,7 @@ namespace Server
         std::vector<Square*> homeB;
         std::vector<Square*> homeY;
         void reorderHomeY();
+        std::vector<std::vector<Square*>*> homes;
 
         bool isInStart(Pawn& pawn, int& indexInStart);
         bool isAtHome(Pawn& pawn, int& indexAtHome);
@@ -61,7 +63,6 @@ namespace Server
         void tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare);
         bool movePawnOut(Square& newSquare, Pawn& pawn);
 
-        bool gameOver;
-        int winner;
+        Player* winner = nullptr;
     };
 }

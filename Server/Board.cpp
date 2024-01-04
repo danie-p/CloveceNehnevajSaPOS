@@ -3,14 +3,16 @@
 #include <algorithm>
 
 Server::Board::Board() :
-        grid(GRID_ROWS, std::vector<Square>(GRID_COLUMNS)),
-        gameOver(false),
-        winner(-1)
+        grid(GRID_ROWS, std::vector<Square>(GRID_COLUMNS))
 {
     this->initializeGrid();
     this->reorderPath();
     this->reorderHomeG();
     this->reorderHomeY();
+    this->homes.push_back(&homeR);
+    this->homes.push_back(&homeG);
+    this->homes.push_back(&homeB);
+    this->homes.push_back(&homeY);
 }
 
 void Server::Board::initializeGrid()
@@ -18,7 +20,10 @@ void Server::Board::initializeGrid()
     /*
     Player* player = new Player(1, 42, 'R');
     Player* player2 = new Player(2, 42, 'B');
-     */
+    Player* player3 = new Player(3, 42, 'Y');
+    Player* player4 = new Player(4, 42, 'G');
+    */
+
     char counterR = '1';
     char counterG = '1';
     char counterB = '1';
@@ -39,7 +44,7 @@ void Server::Board::initializeGrid()
                 square.setEmpty(false);
                 square.setPawn(new Pawn(counterR, player));
                 counterR++;
-                 */
+                */
                 this->startR.push_back(&square);
             }
 
@@ -52,7 +57,7 @@ void Server::Board::initializeGrid()
                 square.setEmpty(false);
                 square.setPawn(new Pawn(counterB, player2));
                 counterB++;
-                 */
+                */
                 this->startB.push_back(&square);
             }
 
@@ -61,10 +66,11 @@ void Server::Board::initializeGrid()
                 i == GRID_ROWS - 1 && j == 0 || i == GRID_ROWS - 1 && j == 1)
             {
                 square.setSquareType(SquareType::StartY);
-                /*square.setEmpty(false);
-                square.setPawn();
+                /*
+                square.setEmpty(false);
+                square.setPawn(new Pawn(counterY, player3));
                 counterY++;
-                 */
+                */
                 this->startY.push_back(&square);
             }
 
@@ -73,10 +79,11 @@ void Server::Board::initializeGrid()
                 i == GRID_ROWS - 1 && j == GRID_COLUMNS - 2 || i == GRID_ROWS - 1 && j == GRID_COLUMNS - 1)
             {
                 square.setSquareType(SquareType::StartG);
-                /*square.setEmpty(false);
-                square.setPawn();
+                /*
+                square.setEmpty(false);
+                square.setPawn(new Pawn(counterG, player4));
                 counterG++;
-                 */
+                */
                 this->startG.push_back(&square);
             }
 
@@ -131,8 +138,8 @@ void Server::Board::display()
 bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 {
     pawnNum = '0' + pawnNum;
-    Square& oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
-    Pawn& pawn = *oldSquare.getPawn();
+    Square* oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
+    Pawn& pawn = *oldSquare->getPawn();
 
     int index = -1;
 
@@ -153,8 +160,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 
             pawn.isInStart = false;
             pawn.isOnPath = true;
-            oldSquare.setEmpty(true);
-            oldSquare.setPawn(nullptr);
+            oldSquare->setEmpty(true);
+            oldSquare->setPawn(nullptr);
             newSquare.setEmpty(false);
             newSquare.setPawn(&pawn);
             std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " from start to path.\n";
@@ -178,7 +185,7 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
                 if (!(index >= 32 && index <= 35) && index + moveSteps >= 32 && index + moveSteps < 36)
                 {
                     int indexHome = (index + moveSteps) % 30 - 2;
-                    this->tryToGoHome(&this->homeR, indexHome, pawn, oldSquare);
+                    this->tryToGoHome(&this->homeR, indexHome, pawn, *oldSquare);
                     return true;
                 }
                 break;
@@ -191,7 +198,7 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
                 if (!(index >= 12 && index <= 15) && index + moveSteps >= 12 && index + moveSteps < 16)
                 {
                     int indexHome = (index + moveSteps) % 10 - 2;
-                    this->tryToGoHome(&this->homeG, indexHome, pawn, oldSquare);
+                    this->tryToGoHome(&this->homeG, indexHome, pawn, *oldSquare);
                     return true;
                 }
                 break;
@@ -204,7 +211,7 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
                 if (!(index >= 2 && index <= 5) && (index + moveSteps) % 40 >= 2 && (index + moveSteps) % 40 < 6)
                 {
                     int indexHome = (index + moveSteps) % 40 - 2;
-                    this->tryToGoHome(&this->homeB, indexHome, pawn, oldSquare);
+                    this->tryToGoHome(&this->homeB, indexHome, pawn, *oldSquare);
                     return true;
                 }
                 break;
@@ -217,7 +224,7 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
                 if (!(index >= 22 && index <= 25) && index + moveSteps >= 22 && index + moveSteps < 26)
                 {
                     int indexHome = (index + moveSteps) % 20 - 2;
-                    this->tryToGoHome(&this->homeY, indexHome, pawn, oldSquare);
+                    this->tryToGoHome(&this->homeY, indexHome, pawn, *oldSquare);
                     return true;
                 }
                 break;
@@ -232,8 +239,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             if (!this->movePawnOut(newSquare, pawn)) return true;
         }
 
-        oldSquare.setEmpty(true);
-        oldSquare.setPawn(nullptr);
+        oldSquare->setEmpty(true);
+        oldSquare->setPawn(nullptr);
         newSquare.setEmpty(false);
         newSquare.setPawn(&pawn);
 
@@ -263,8 +270,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             if (home) {
                 Square& newSquare = *(*home).at(index + moveSteps);
                 if (newSquare.isEmpty()) {
-                    oldSquare.setEmpty(true);
-                    oldSquare.setPawn(nullptr);
+                    oldSquare->setEmpty(true);
+                    oldSquare->setPawn(nullptr);
                     newSquare.setEmpty(false);
                     newSquare.setPawn(&pawn);
                     std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " further inside the home.\n";
@@ -283,12 +290,28 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 
 bool Server::Board::isGameOver()
 {
+    for (auto home : this->homes) {
+        bool homeIsFull = true;
+        for (auto square : *home) {
+            if (square->isEmpty()) {
+                homeIsFull = false;
+            }
+        }
+        if (homeIsFull) {
+            this->winner = home->at(0)->getPawn()->player;
+            return true;
+        }
+    }
+
     return false;
 }
 
-int Server::Board::getWinner()
+/*
+ * only call when game is over, otherwise nullptr will be returned
+ */
+Server::Player* Server::Board::getWinner()
 {
-    return 0;
+    return this->winner;
 }
 
 // reorders the path vector so that square indices are placed in order of gameplay
