@@ -48,7 +48,7 @@ void Server::Create(int port) {
     }
 
     close(serverPassiveSocket);
-    std::cout << "All players connected, staring game...\n";
+    std::cout << "All players connected, starting game...\n";
 
     // start game
     PlayGame(clientSockets);

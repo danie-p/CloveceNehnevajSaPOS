@@ -8,14 +8,15 @@ namespace Server {
 
     Game::Game(std::vector<int> clientSockets) {
         char colors[] = {'R', 'G', 'B', 'Y'};
+        this->players = new std::vector<Player*>;
         for (int i = 0; i < clientSockets.size(); ++i) {
-            players.push_back(new Player(i + 1, clientSockets[i], 1, colors[i]));
+            players->push_back(new Player(i + 1, clientSockets[i], 1, colors[i]));
         }
         std::cout << "Game instance created\n";
     }
 
     Game::~Game() {
-        for (int i = 0; i < players.size(); ++i) {
+        for (int i = 0; i < players->size(); ++i) {
             if (playerThreads[i] != nullptr) {
                 playerThreads[i]->join();
                 delete playerThreads[i];
@@ -29,9 +30,9 @@ namespace Server {
             boardUpdateThread = nullptr;
         }
 
-        for (int i = 0; i < players.size(); ++i) {
-            delete players[i];
-            players[i] = nullptr;
+        for (auto & player : *players) {
+            delete player;
+            player = nullptr;
         }
 
         std::cout << "Game instance destroyed\n";
@@ -40,9 +41,9 @@ namespace Server {
     void Game::Begin() {
         std::cout << "Game starting..\n";
 
-        for (int i = 0; i < players.size(); ++i) {
-            playerThreads.push_back(new std::thread(&Game::ManagePlayerTurn, this, players[i]));
-            std::cout << "Created turn management thread for player id " << players[i]->getId() << "\n";
+        for (auto & player : *players) {
+            playerThreads.push_back(new std::thread(&Game::ManagePlayerTurn, this, player));
+            std::cout << "Created turn management thread for player id " << player->getId() << "\n";
         }
 
         boardUpdateThread = new std::thread(&Game::SendUpdate, this);
@@ -52,7 +53,7 @@ namespace Server {
     void Game::End() {
         std::cout << "Game is ending...\n";
 
-        for (int i = 0; i < players.size(); ++i) {
+        for (int i = 0; i < players->size(); ++i) {
             playerThreads[i]->join();
             delete playerThreads[i];
             playerThreads[i] = nullptr;
@@ -66,38 +67,36 @@ namespace Server {
     void Game::SendUpdate() {
         // first send ids to clients
         if (!idsSent) {
-            std::cout << "Sending played ids to clients...\n";
-            for (int i = 0; i < players.size(); ++i) {
+            std::cout << "Sending player ids to clients...\n";
+            for (int i = 0; i < players->size(); ++i) {
                 std::string message = "$id:";
-                std::string id = std::to_string(players[i]->getId());
+                std::string id = std::to_string(players->at(i)->getId());
                 message += id;
                 message += END_MESSAGE;
-
                 {
-                    std::unique_lock<std::mutex> lock(*players[i]->getMutex());
-                    while (!updBoard)
+                    std::unique_lock<std::mutex> lock(*players->at(i)->getMutex());
+                    while (!updBoard) {
                         cvUpdateBoard.wait(lock);
-
-                    write(players[i]->getSocket(), message.c_str(), message.size() + 1);
+                    }
+                    write(players->at(i)->getSocket(), message.c_str(), message.size() + 1);
                 }
-
             }
             idsSent = true;
         }
 
         while (!gameOver) {
-            for (int i = 0; i < players.size(); ++i) {
+            for (int i = 0; i < players->size(); ++i) {
                 std::string message = "$board:";
                 std::string boardStr = board.toString();
                 message += boardStr;
                 message += END_MESSAGE;
 
                 {
-                    std::unique_lock<std::mutex> lock(*players[i]->getMutex());
+                    std::unique_lock<std::mutex> lock(*players->at(i)->getMutex());
                     while (!updBoard)
                         cvUpdateBoard.wait(lock);
 
-                    write(players[i]->getSocket(), message.c_str(), message.size() + 1);
+                    write(players->at(i)->getSocket(), message.c_str(), message.size() + 1);
 
                     updBoard = false;
                     manPlayerTurns = true;
@@ -116,7 +115,6 @@ namespace Server {
             message += boardStr;
             message += END_MESSAGE;
 
-
             {
                 std::unique_lock<std::mutex> lock(*player->getMutex());
                 while (!manPlayerTurns && playerIdOnTurn != player->getId())
@@ -128,20 +126,20 @@ namespace Server {
                 char buffer [buffLen + 1];
                 buffer[buffLen] = '\0';
                 bzero(buffer, buffLen);
-
                 read(player->getSocket(), buffer, buffLen);
 
-                std::string recievedMsg = buffer;
-                recievedMsg.pop_back();
-
-                std::string parsedMsg = recievedMsg.substr(recievedMsg.find({'%', '%'}) + 1);
+                std::string receivedMsg = buffer;
+                if (!receivedMsg.empty()) {
+                    receivedMsg.pop_back();
+                }
+                std::string parsedMsg = receivedMsg.substr(receivedMsg.find({'%', '%'}) + 1);
 
                 // update board
                 board.movePawn(player->getId(), '0', 6);
 
                 manPlayerTurns = false;
                 // loop player id on turn from 1 to player count
-                playerIdOnTurn = playerIdOnTurn + 1 > players.size() ? 1 : playerIdOnTurn + 1;
+                playerIdOnTurn = playerIdOnTurn + 1 > players->size() ? 1 : playerIdOnTurn + 1;
                 updBoard = true;
                 cvUpdateBoard.notify_one();
             }

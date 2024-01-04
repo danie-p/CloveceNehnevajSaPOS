@@ -24,7 +24,7 @@ namespace Server {
         bool gameOver = false;
         bool idsSent = false;
 
-        std::vector<Player*> players;
+        std::vector<Player*>* players;
 
         std::vector<std::thread*> playerThreads;
         std::thread* boardUpdateThread;
