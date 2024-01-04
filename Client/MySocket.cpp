@@ -3,7 +3,7 @@
 #include <ws2tcpip.h>
 #include <winsock2.h>
 
-#define SOCKET_TERMINATE_CHAR '\0'
+#define SOCKET_TERMINATE_CHAR '%'
 
 // ked 1 strana posle 2. strane spravu ":end", tak chce ukoncit komunikaciu
 // specializovana sprava

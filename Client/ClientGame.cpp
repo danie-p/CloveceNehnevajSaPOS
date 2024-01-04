@@ -7,10 +7,10 @@ namespace Client
         try {
             std::cout << "Connecting to " << ipaddr << "...\n";
             socket = MySocket::createConnection(ipaddr, port);
-            std::cout << "Successfully conencted to " << ipaddr << "\n";
+            std::cout << "Successfully connected to " << ipaddr << "\n";
 
             // simulate sending message for debugging purposes
-            std::this_thread::sleep_for(std::chrono::seconds(30));
+            std::this_thread::sleep_for(std::chrono::seconds(15));
             socket->sendData("testing data hello can you see me");
         }
         catch (std::exception& e) {

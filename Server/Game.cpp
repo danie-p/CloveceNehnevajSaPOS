@@ -2,6 +2,7 @@
 // Created by Kristian on 3. 1. 2024.
 //
 
+#include <csignal>
 #include "Game.h"
 
 namespace Server {
@@ -69,6 +70,8 @@ namespace Server {
     }
 
     void Game::SendUpdate() {
+        //signal(SIGPIPE, SIG_IGN);
+
         // first send ids to clients
         if (!idsSent) {
             std::cout << "Sending player ids to clients...\n";
@@ -131,10 +134,8 @@ namespace Server {
                 buffer[buffLen] = '\0';
                 bzero(buffer, buffLen);
 
-                // read...but what if there is nothing ? there won't be anything until player makes his turn
-                // so how do we wait ?
                 std::string receivedMsg = "";
-                while (receivedMsg == "") {
+                while (receivedMsg.find(END_MESSAGE) == std::string::npos) {
                     read(player->getSocket(), buffer, buffLen);
                     receivedMsg = buffer;
                     // it can be assumed that any reply from client when it's his turn will take him
@@ -146,7 +147,7 @@ namespace Server {
                     receivedMsg.pop_back();
                 }
                 
-                std::string parsedMsg = receivedMsg.substr(receivedMsg.find({'%', '%'}) + 1);
+
 
                 // update board
 

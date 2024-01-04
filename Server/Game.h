@@ -35,7 +35,7 @@ namespace Server {
         bool manPlayerTurns = false;
 
     public:
-        const std::string END_MESSAGE = "%%";
+        const std::string END_MESSAGE = "%";
 
         Game(std::vector<int> clientSockets);
         ~Game();
