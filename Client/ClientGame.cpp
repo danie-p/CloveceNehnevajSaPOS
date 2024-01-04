@@ -8,18 +8,16 @@ namespace Client
             std::cout << "Connecting to " << ipaddr << "...\n";
             socket = MySocket::createConnection(ipaddr, port);
             std::cout << "Successfully connected to " << ipaddr << "\n";
-
-            // simulate sending message for debugging purposes
-            std::this_thread::sleep_for(std::chrono::seconds(15));
-            socket->sendData("testing data hello can you see me");
+            WaitForStart();
         }
         catch (std::exception& e) {
-            std::cout << "Error connecting to server: " << e.what() << "\n";
+            std::cout << e.what() << "\n";
         }
     }
 
     void ClientGame::WaitForStart() {
-
+        std::cout << "Waiting for game to start...\n";
+        std::string data = socket->receiveData();
     }
 
     ClientGame::~ClientGame()

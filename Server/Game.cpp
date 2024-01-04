@@ -130,8 +130,7 @@ namespace Server {
                 write(player->getSocket(), message.c_str(), message.size() + 1);
 
                 int buffLen = 100;
-                char buffer [buffLen + 1];
-                buffer[buffLen] = '\0';
+                char buffer [buffLen];
                 bzero(buffer, buffLen);
 
                 std::string receivedMsg = "";

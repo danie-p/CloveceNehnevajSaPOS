@@ -3,6 +3,8 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <winsock2.h>
 #include <string>
+#include <thread>
+#include <vector>
 
 class MySocket {
 public:
@@ -17,6 +19,8 @@ public:
     // posielam text => nemusim prevadzat na little/big endian
     void sendData(const std::string& data);
     void sendEndMessage();
+
+    std::string receiveData();
 protected:
     MySocket(SOCKET socket);
 private:

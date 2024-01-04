@@ -113,6 +113,25 @@ void MySocket::sendEndMessage() {
     this->sendData(this->endMessage);
 }
 
+std::string MySocket::receiveData() {
+    int buffLen = 4096;
+    char buffer [buffLen];
+    memset(buffer, '\0', buffLen);
+
+    std::string receivedMsg = "";
+    while (receivedMsg.find(SOCKET_TERMINATE_CHAR) == std::string::npos) {
+        recv(connectSocket, buffer, buffLen, 0);
+        receivedMsg = buffer;
+
+        // generally, the client will receive message from server at the beginning of the game
+        // and then only after each turn, which may take several seconds to complete
+        // therefore we can wait longer
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+    }
+
+    std::vector<std::string>
+}
+
 // sprava moze prist rozkuskovana na viacero sprav (dokopy ten isty obsah), resp viac sprav moze prist ako jedna velka => pocet sprav NIE je garantovany
 
 #undef SOCKET_TERMINATE_CHAR
