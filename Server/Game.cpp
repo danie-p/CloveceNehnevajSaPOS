@@ -8,7 +8,7 @@ namespace Server {
 
     Game::Game(std::vector<int> clientSockets) {
         char colors[] = {'R', 'G', 'B', 'Y'};
-        this->players = new std::vector<Player*>;
+        this->players = new std::vector<Player*>();
         for (int i = 0; i < clientSockets.size(); ++i) {
             players->push_back(new Player(i + 1, clientSockets[i], 1, colors[i]));
         }
@@ -35,15 +35,19 @@ namespace Server {
             player = nullptr;
         }
 
+        delete players;
+        players = nullptr;
+
         std::cout << "Game instance destroyed\n";
     }
 
     void Game::Begin() {
         std::cout << "Game starting..\n";
 
-        for (auto & player : *players) {
-            playerThreads.push_back(new std::thread(&Game::ManagePlayerTurn, this, player));
-            std::cout << "Created turn management thread for player id " << player->getId() << "\n";
+        for (int i = 0; i < players->size(); ++i)
+        {
+            playerThreads.push_back(new std::thread(&Game::ManagePlayerTurn, this, players->at(i)));
+            std::cout << "Created turn management thread for player id " << players->at(i)->getId() << "\n";
         }
 
         boardUpdateThread = new std::thread(&Game::SendUpdate, this);
@@ -68,17 +72,17 @@ namespace Server {
         // first send ids to clients
         if (!idsSent) {
             std::cout << "Sending player ids to clients...\n";
-            for (int i = 0; i < players->size(); ++i) {
+            for (auto & player : *players) {
                 std::string message = "$id:";
-                std::string id = std::to_string(players->at(i)->getId());
+                std::string id = std::to_string(player->getId());
                 message += id;
                 message += END_MESSAGE;
                 {
-                    std::unique_lock<std::mutex> lock(*players->at(i)->getMutex());
+                    std::unique_lock<std::mutex> lock(*player->getMutex());
                     while (!updBoard) {
                         cvUpdateBoard.wait(lock);
                     }
-                    write(players->at(i)->getSocket(), message.c_str(), message.size() + 1);
+                    write(player->getSocket(), message.c_str(), message.size() + 1);
                 }
             }
             idsSent = true;
@@ -126,16 +130,26 @@ namespace Server {
                 char buffer [buffLen + 1];
                 buffer[buffLen] = '\0';
                 bzero(buffer, buffLen);
-                read(player->getSocket(), buffer, buffLen);
 
-                std::string receivedMsg = buffer;
+                // read...but what if there is nothing ? there won't be anything until player makes his turn
+                // so how do we wait ?
+                std::string receivedMsg = "";
+                while (receivedMsg == "") {
+                    read(player->getSocket(), buffer, buffLen);
+                    receivedMsg = buffer;
+                    // it can be assumed that any reply from client when it's his turn will take him
+                    // at least a second or two to send (reply has to be sent manually by pressing Enter for instance)
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+                
                 if (!receivedMsg.empty()) {
                     receivedMsg.pop_back();
                 }
+                
                 std::string parsedMsg = receivedMsg.substr(receivedMsg.find({'%', '%'}) + 1);
 
                 // update board
-                board.movePawn(player->getId(), '0', 6);
+
 
                 manPlayerTurns = false;
                 // loop player id on turn from 1 to player count
