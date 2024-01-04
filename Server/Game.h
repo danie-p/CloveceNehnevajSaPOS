@@ -24,13 +24,14 @@ namespace Server {
         std::condition_variable cvUpdateBoard;
         std::mutex mutex;
         bool turnDone = true;
+        bool gameOver = false;
 
     public:
         Game(std::vector<int> clientSockets);
         ~Game();
         void Begin();
         void End();
-        void ManagePlayerTurns(int socket);
+        void ManagePlayerTurns(int socket, int id);
         void UpdateBoard();
     };
 

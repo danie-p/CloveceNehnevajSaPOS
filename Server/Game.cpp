@@ -29,7 +29,7 @@ namespace Server {
 
     void Game::Begin() {
         for (int i = 0; i < playerCount; ++i) {
-            playerThreads.push_back(new std::thread(&Game::ManagePlayerTurns, this, playerSockets[i]));
+            playerThreads.push_back(new std::thread(&Game::ManagePlayerTurns, this, playerSockets[i], i + 1));
         }
 
         boardUpdateThread = new std::thread(&Game::UpdateBoard, this);
@@ -47,8 +47,13 @@ namespace Server {
         boardUpdateThread = nullptr;
     }
 
-    void Game::ManagePlayerTurns(int socket) {
-
+    void Game::ManagePlayerTurns(int socket, int id) {
+        // first send player his id
+        const char* id_cstr = std::to_string(id).c_str();
+        {
+            // at this point there is player id, socket and mutex -> need for player class :)
+            // std::unique_lock<std::mutex>
+        }
     }
 
     void Game::UpdateBoard() {
@@ -61,9 +66,18 @@ namespace Server {
                     cvUpdateBoard.wait(lock);
 
                 for (int i = 0; i < playerCount; ++i) {
-                    if (/* not game over */1 == 2) {
-                        //std::string boardStr = board.toString();
-                        //write(playerSockets[i], boardStr.c_str(), boardStr.size() + 1);
+                    if (!gameOver) {
+                        std::string boardStr = board.toString();
+                        std::string message = "$board:";
+                        message += boardStr;
+                        message += "%%";
+
+                        // all details should be send in this message
+                        // -----
+                        // need to send:
+                        //  - player on turn (id 1 to player count)
+                        // player needs to get his id at the start of the game
+                        write(playerSockets[i], message.c_str(), message.size() + 1);
                     } else {
                         // send results and return
                         return;
