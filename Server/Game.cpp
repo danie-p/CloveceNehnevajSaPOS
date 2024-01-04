@@ -11,6 +11,7 @@ namespace Server {
         for (int i = 0; i < clientSockets.size(); ++i) {
             players.push_back(new Player(i + 1, clientSockets[i], 1, colors[i]));
         }
+        std::cout << "Game instance created\n";
     }
 
     Game::~Game() {
@@ -32,17 +33,25 @@ namespace Server {
             delete players[i];
             players[i] = nullptr;
         }
+
+        std::cout << "Game instance destroyed\n";
     }
 
     void Game::Begin() {
+        std::cout << "Game starting..\n";
+
         for (int i = 0; i < players.size(); ++i) {
             playerThreads.push_back(new std::thread(&Game::ManagePlayerTurn, this, players[i]));
+            std::cout << "Created turn management thread for player id " << players[i]->getId() << "\n";
         }
 
-        boardUpdateThread = new std::thread(&Game::UpdateBoard, this);
+        boardUpdateThread = new std::thread(&Game::SendUpdate, this);
+        std::cout << "Create update thread\n";
     }
 
     void Game::End() {
+        std::cout << "Game is ending...\n";
+
         for (int i = 0; i < players.size(); ++i) {
             playerThreads[i]->join();
             delete playerThreads[i];
@@ -54,9 +63,10 @@ namespace Server {
         boardUpdateThread = nullptr;
     }
 
-    void Game::UpdateBoard() {
+    void Game::SendUpdate() {
         // first send ids to clients
         if (!idsSent) {
+            std::cout << "Sending played ids to clients...\n";
             for (int i = 0; i < players.size(); ++i) {
                 std::string message = "$id:";
                 std::string id = std::to_string(players[i]->getId());
@@ -106,12 +116,34 @@ namespace Server {
             message += boardStr;
             message += END_MESSAGE;
 
+
             {
                 std::unique_lock<std::mutex> lock(*player->getMutex());
-                while (!manPlayerTurns)
+                while (!manPlayerTurns && playerIdOnTurn != player->getId())
                     cvManagePlayerTurn.wait(lock);
 
-                // now the player does a turn somehow
+                write(player->getSocket(), message.c_str(), message.size() + 1);
+
+                int buffLen = 100;
+                char buffer [buffLen + 1];
+                buffer[buffLen] = '\0';
+                bzero(buffer, buffLen);
+
+                read(player->getSocket(), buffer, buffLen);
+
+                std::string recievedMsg = buffer;
+                recievedMsg.pop_back();
+
+                std::string parsedMsg = recievedMsg.substr(recievedMsg.find({'%', '%'}) + 1);
+
+                // update board
+                board.movePawn(player->getId(), '0', 6);
+
+                manPlayerTurns = false;
+                // loop player id on turn from 1 to player count
+                playerIdOnTurn = playerIdOnTurn + 1 > players.size() ? 1 : playerIdOnTurn + 1;
+                updBoard = true;
+                cvUpdateBoard.notify_one();
             }
 
         }

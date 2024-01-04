@@ -8,23 +8,19 @@
 #include <vector>
 #include <thread>
 #include <unistd.h>
+#include <strings.h>
+#include <iostream>
 #include <condition_variable>
+
 #include "Board.h"
 
 namespace Server {
-
-    enum class MessageType
-    {
-        Board,
-        Id,
-        Result
-    };
 
     class Game {
     private:
         Board board;
         int turn = 1;
-        int playerOnTurn = 0;
+        int playerIdOnTurn = 1;
         bool gameOver = false;
         bool idsSent = false;
 
@@ -45,7 +41,7 @@ namespace Server {
         ~Game();
         void Begin();
         void End();
-        void UpdateBoard();
+        void SendUpdate();
         void ManagePlayerTurn(Player* player);
     };
 
