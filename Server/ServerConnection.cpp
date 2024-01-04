@@ -19,12 +19,14 @@ void Server::Create(int port) {
     sockaddr_in serverAddr;
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = INADDR_ANY;
-    serverAddr.sin_port = port;
+    serverAddr.sin_port = htons(port);
 
     if (bind(serverPassiveSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) < 0) {
         std::cout << "Error binding server passive socket\n";
         return;
     }
+
+    std::cout << "Successfully create game server\n";
 
     std::cout << "Waiting for players to connect...\n";
     if (listen(serverPassiveSocket, 10) < 0) {
