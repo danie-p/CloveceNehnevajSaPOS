@@ -12,26 +12,41 @@
 #include "Board.h"
 
 namespace Server {
+
+    enum class MessageType
+    {
+        Board,
+        Id,
+        Result
+    };
+
     class Game {
     private:
         Board board;
         int turn = 1;
         int playerOnTurn = 0;
-        int playerCount = 0;
-        std::vector<int> playerSockets;
+        bool gameOver = false;
+        bool idsSent = false;
+
+        std::vector<Player*> players;
+
         std::vector<std::thread*> playerThreads;
         std::thread* boardUpdateThread;
+
         std::condition_variable cvUpdateBoard;
-        std::mutex mutex;
-        bool turnDone = true;
+        std::condition_variable cvManagePlayerTurn;
+        bool updBoard = true;
+        bool manPlayerTurns = false;
 
     public:
+        const std::string END_MESSAGE = "%%";
+
         Game(std::vector<int> clientSockets);
         ~Game();
         void Begin();
         void End();
-        void ManagePlayerTurns(int socket);
         void UpdateBoard();
+        void ManagePlayerTurn(Player* player);
     };
 
 }

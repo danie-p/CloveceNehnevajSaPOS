@@ -1,31 +1,38 @@
 #pragma once
 
 #include <string>
+#include <mutex>
 
 namespace Server
 {
 	class Player
 	{
 	public:
-        Player(int id, int gameId, char color) : Id(id), GameId(gameId), Color(color) {};
-		int getId() const { return this->Id; };
-		std::string& getNick() { return this->Nick; };
-		int getScore() const { return this->Score; };
-		int getGameId() const { return this->GameId; };
-		char getColor() const { return this->Color; };
+        Player(int id, int socket, int gameId, char color)
+        : id(id), socket(socket), gameId(gameId), color(color) {};
 
-		void setId(int id) { this->Id = id; };
-		void setNick(std::string& nick) { this->Nick = nick; };
-		void setScore(int score) { this->Score = score; };
-		void setGameId(int gameId) { this->GameId = gameId; };
-		void setColor(char color) { this->Color = color; };
+		int getId() const { return this->id; };
+		std::string getNick() { return this->nick; };
+		int getScore() const { return this->s; };
+		int getGameId() const { return this->gameId; };
+		char getColor() const { return this->color; };
+        std::mutex* getMutex() { return &this->mutex;}
+        int getSocket() { return this->socket; }
+
+		void setId(int id) { this->id = id; };
+		void setNick(std::string nick) { this->nick = nick; };
+		void setScore(int score) { this->s = score; };
+		void setGameId(int gameId) { this->gameId = gameId; };
+		void setColor(char color) { this->color = color; };
 
 	private:
-		int Id;
-		std::string Nick = "IvanTheSpaceBiker";
-		int Score = 0;
-		int GameId;
-		char Color;
+		int id;
+		std::string nick = "IvanTheSpaceBiker";
+		int s = 0;
+		int gameId;
+		char color;
+        int socket;
+        std::mutex mutex;
 	};
 }
 
