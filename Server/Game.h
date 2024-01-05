@@ -23,14 +23,16 @@ namespace Server {
         int playerIdOnTurn = 1;
         bool gameOver = false;
 
-        std::vector<Player*>* players;
+        std::vector<Player*> players;
 
-        std::vector<std::thread*> playerThreads;
+        std::thread* sendUpdateThread;
+        std::thread* manageTurnThread;
 
+        std::mutex dataLock;
         std::condition_variable cvSendUpdate;
         std::condition_variable cvManagePlayerTurn;
-        bool sendUpd = true;
-        bool manPlayerTurns = false;
+        bool updateSent = false;
+        bool turnManaged = true;
 
     public:
         const std::string END_MESSAGE = "%";
@@ -40,8 +42,8 @@ namespace Server {
         void Begin();
         void End();
         void SendUpdate();
-        void ManagePlayerTurn(Player* player);
-        void SendIds();
+        void ManagePlayerTurn();
+        //void SendIds();
     };
 
 }

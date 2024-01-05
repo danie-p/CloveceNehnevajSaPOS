@@ -22,42 +22,35 @@ namespace Client
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
 
-            int numOfMessagesToWaitFor = turn == 1 ? 3 : 2; // on first turn also wait for player id
-            std::vector<std::string> *data = socket->receiveData(numOfMessagesToWaitFor);
+            data = socket->receiveData(3);
 
-            if (numOfMessagesToWaitFor == 3) {
+            if (1 == turn)
                 playerId = std::stoi(data->at(0));
-                data->erase(data->begin());
-            }
-
-            std::cout << "It is your turn!\n";
-            YouAreColor(playerId);
 
             std::cout << "Updated board:\n";
             std::cout << data->at(0) << "\n";
+            YouAreColor(playerId);
 
-            if (data->size() == 2) { // in subsequent turns, wait for just the board and id of player that is on turn
-                // check if it's game over
-                if (data->at(1).find("gameover") != std::string::npos) {
-                    // it's game over, what now
-                    gameOver = true;
-                    break;
-                }
-
-                if (data->at(1) == std::to_string(playerId)) { // it is your turn
-                    std::cout << "It is your turn.\n";
-
-                    int numThrown = Throw();
-                    int pawnPicked = PickPawn();
-                    std::cout << "Press 'Enter' to finish your turn...\n";
-                    std::cin.ignore();
-
-                    socket->sendData(std::to_string(numThrown));
-                    socket->sendData(std::to_string(pawnPicked));
-                }
+            // check if it's game over
+            if (data->at(2).find("gameover") != std::string::npos) {
+                gameOver = true;
+                break;
             }
-        }
 
+            if (data->at(1) == std::to_string(playerId)) {
+                std::cout << "It is your turn.\n";
+
+                int numThrown = ThrowDice();
+                int pawnPicked = PickPawn();
+                std::cout << "Press 'Enter' to finish your turn...\n";
+                std::cin.ignore();
+
+                socket->sendData(std::to_string(numThrown));
+                socket->sendData(std::to_string(pawnPicked));
+            }
+
+            turn++;
+        }
 
         std::cout << "The game is over!\n";
         std::string winnerId = data->at(1).substr(data->at(0).size() - 2, data->at(0).size() - 1);
@@ -66,7 +59,7 @@ namespace Client
         delete data;
     }
 
-    int ClientGame::Throw() {
+    int ClientGame::ThrowDice() {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 6);
@@ -112,10 +105,10 @@ namespace Client
     void ClientGame::YouAreColor(int id) {
         std::cout << "You play as color ";
         switch (id) {
-            case 1: std::cout << "RED"; break;
-            case 2: std::cout << "GREEN"; break;
-            case 3: std::cout << "BLUE"; break;
-            case 4: std::cout << "YELLOW"; break;
+            case 1: std::cout << "RED\n"; break;
+            case 2: std::cout << "GREEN\n"; break;
+            case 3: std::cout << "BLUE\n"; break;
+            case 4: std::cout << "YELLOW\n"; break;
         }
     }
 }

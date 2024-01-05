@@ -122,14 +122,14 @@ std::vector<std::string>* MySocket::receiveData(int numOfMessagesToWaitFor) {
     std::vector<std::string>* messages = new std::vector<std::string>();
     int msgCount = 0;
 
-    while (msgCount < /*numOfMessagesToWaitFor* DEBUG: for now wait for 2 messages */ 2) { // receive 3 messages: 1. id; 2. board; 3. 'your turn message'
+    while (msgCount < numOfMessagesToWaitFor) {
         std::string receivedMsg = "";
         while (receivedMsg.find(SOCKET_TERMINATE_CHAR) == std::string::npos) {
             recv(connectSocket, buffer, buffLen, 0);
             receivedMsg = buffer;
             // generally, the client will receive message from server at the beginning of the game
             // and then only after each turn, which may take several seconds to complete
-            // therefore we can wait longer
+            // therefore we can sleep for a few seconds instead of checking the condition over and over again
             std::this_thread::sleep_for(std::chrono::seconds(2));
         }
 

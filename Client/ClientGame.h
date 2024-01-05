@@ -20,7 +20,7 @@ namespace Client
 	public:
 		void Connect(std::string ipaddr, unsigned int port);
         void Play();
-        int Throw();
+        int ThrowDice();
         int PickPawn();
         void YouAreColor(int id);
 		~ClientGame();
