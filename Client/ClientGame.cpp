@@ -1,3 +1,4 @@
+#include <random>
 #include "ClientGame.h"
 
 namespace Client
@@ -16,37 +17,91 @@ namespace Client
     }
 
     void ClientGame::Play() {
-        std::cout << "Waiting for turn...\n";
+        std::vector<std::string> *data;
 
-        int numOfMessagesToWaitFor = turn == 1 ? 3 : 2;
-        std::vector<std::string>* data = socket->receiveData(numOfMessagesToWaitFor);
+        while (!gameOver) {
+            std::cout << "Waiting for turn...\n";
 
-        std::cout << "It is your turn!\n";
+            int numOfMessagesToWaitFor = turn == 1 ? 3 : 2;
+            std::vector<std::string> *data = socket->receiveData(numOfMessagesToWaitFor);
 
-        if (numOfMessagesToWaitFor == 3) {
-            playerId = std::stoi(data->at(0));
-            data->erase(data->begin());
-        }
+            if (numOfMessagesToWaitFor == 3) {
+                playerId = std::stoi(data->at(0));
+                data->erase(data->begin());
+            }
 
-        std::cout << "Updated board:\n";
-        std::cout << data->at(0) << "\n";
+            std::cout << "It is your turn!\n";
+            YouAreColor(playerId);
 
-        if (data->size() == 2) {
-            if (data->at(1) == std::to_string(playerId)) { // it is your turn
-                std::cout << "It is your turn.\n";
+            std::cout << "Updated board:\n";
+            std::cout << data->at(0) << "\n";
 
-                // hod kockou
-                // vyber panacika
-                // cakaj na potvrdenie
-                // posli hod a panacika serveru...
+            if (data->size() == 2) {
+                if (data->at(1) == std::to_string(playerId)) { // it is your turn
+                    std::cout << "It is your turn.\n";
+
+                    int numThrown = Throw();
+                    int pawnPicked = PickPawn();
+                    std::cout << "Press 'Enter' to finish your turn...\n";
+                    std::cin.ignore();
+                    // posli hod a panacika serveru...
+                }
             }
         }
 
         delete data;
     }
 
-    ClientGame::~ClientGame()
-    {
+    int ClientGame::Throw() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 6);
+        int result = 0;
+
+        std::cout << "Time to throw the dice...\n";
+        std::cin.ignore();
+        result = distrib(gen);
+        std::cout << "Result of throw: " << result << "\n";
+
+        if (6 == result) {
+            std::cout << "You can throw again!\n";
+            std::cin.ignore();
+            int result2 = distrib(gen);
+
+            std::cout << "Result of throw: " << result2 << "\n";
+            std::cout << "Together it is: " << result + result2 << "\n";
+            result += result2;
+        }
+        return result;
+    }
+
+    ClientGame::~ClientGame() {
         delete socket;
+    }
+
+    int ClientGame::PickPawn() {
+        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick the first one)";
+        std::string input = "";
+        int result = 1;
+        std::cin >> input;
+        if (input == "2")
+            result = 2;
+        else if (input == "3")
+            result = 3;
+        else if (input == "4")
+            result = 4;
+
+        std::cout << "You picked pawn " << result << "\n";
+        return result;
+    }
+
+    void ClientGame::YouAreColor(int id) {
+        std::cout << "You play as color ";
+        switch (id) {
+            case 1: std::cout << "RED"; break;
+            case 2: std::cout << "GREEN"; break;
+            case 3: std::cout << "BLUE"; break;
+            case 4: std::cout << "YELLOW"; break;
+        }
     }
 }
