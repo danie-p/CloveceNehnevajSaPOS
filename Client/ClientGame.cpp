@@ -37,13 +37,12 @@ namespace Client
                 break;
             }
 
-            if (data->at(1) == std::to_string(playerId)) {
+            if (data->at(2) == std::to_string(playerId)) {
                 std::cout << "It is your turn.\n";
 
                 int numThrown = ThrowDice();
                 int pawnPicked = PickPawn();
-                std::cout << "Press 'Enter' to finish your turn...\n";
-                std::getchar();
+                system("pause");
 
                 socket->sendData(std::to_string(numThrown));
                 socket->sendData(std::to_string(pawnPicked));
@@ -65,14 +64,14 @@ namespace Client
         std::uniform_int_distribution<> distrib(1, 6);
         int result = 0;
 
-        std::cout << "Time to throw the dice, press 'Enter' to throw...\n";
-        std::getchar();
+        std::cout << "Time to throw the dice...\n";
+        system("pause");
         result = distrib(gen);
         std::cout << "Result of throw: " << result << "\n";
 
         if (6 == result) {
-            std::cout << "You can throw again! Press 'Enter' to throw...\n";
-            std::getchar();
+            std::cout << "You can throw again!...\n";
+            system("pause");
             int result2 = distrib(gen);
 
             std::cout << "Result of throw: " << result2 << "\n";

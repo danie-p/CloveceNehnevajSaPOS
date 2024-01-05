@@ -56,10 +56,10 @@ namespace Server {
                     if (!turnManaged)
                         cvSendUpdate.wait(lock);
 
-                    message += std::to_string(playerIdOnTurn);
+                    message += board.toString();
                     message += END_MESSAGE;
 
-                    message += board.toString();
+                    message += std::to_string(playerIdOnTurn);
                     message += END_MESSAGE;
 
                     updateSent = true;
