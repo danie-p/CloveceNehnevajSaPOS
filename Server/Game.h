@@ -22,16 +22,14 @@ namespace Server {
         int turn = 1;
         int playerIdOnTurn = 1;
         bool gameOver = false;
-        bool idsSent = false;
 
         std::vector<Player*>* players;
 
         std::vector<std::thread*> playerThreads;
-        std::thread* boardUpdateThread;
 
-        std::condition_variable cvUpdateBoard;
+        std::condition_variable cvSendUpdate;
         std::condition_variable cvManagePlayerTurn;
-        bool updBoard = true;
+        bool sendUpd = true;
         bool manPlayerTurns = false;
 
     public:
@@ -43,6 +41,7 @@ namespace Server {
         void End();
         void SendUpdate();
         void ManagePlayerTurn(Player* player);
+        void SendIds();
     };
 
 }

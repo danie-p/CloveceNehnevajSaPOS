@@ -16,7 +16,6 @@ namespace Client
     }
 
     void ClientGame::WaitForStart() {
-        std::cout << "Waiting for game to start...\n";
         std::string data = socket->receiveData();
     }
 

@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <ws2tcpip.h>
 #include <winsock2.h>
+#include <iostream>
 
 #define SOCKET_TERMINATE_CHAR '%'
 
@@ -118,18 +119,33 @@ std::string MySocket::receiveData() {
     char buffer [buffLen];
     memset(buffer, '\0', buffLen);
 
-    std::string receivedMsg = "";
-    while (receivedMsg.find(SOCKET_TERMINATE_CHAR) == std::string::npos) {
-        recv(connectSocket, buffer, buffLen, 0);
-        receivedMsg = buffer;
+    std::vector<std::string> messages;
+    int msgCount = 0;
 
-        // generally, the client will receive message from server at the beginning of the game
-        // and then only after each turn, which may take several seconds to complete
-        // therefore we can wait longer
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::cout << "Waiting for turn...\n";
+    while (msgCount < 2) { // receive 3 messages: 1. id; 2. board; 3. 'your turn message'
+        std::string receivedMsg = "";
+        while (receivedMsg.find(SOCKET_TERMINATE_CHAR) == std::string::npos) {
+            recv(connectSocket, buffer, buffLen, 0);
+            receivedMsg = buffer;
+            // generally, the client will receive message from server at the beginning of the game
+            // and then only after each turn, which may take several seconds to complete
+            // therefore we can wait longer
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+
+        int index = 0;
+        while ((index = receivedMsg.find(SOCKET_TERMINATE_CHAR)) != std::string::npos) {
+            messages.push_back(receivedMsg.substr(0, index + 1));
+            receivedMsg = receivedMsg.substr(index + 1);
+            msgCount++;
+        }
     }
 
-    std::vector<std::string>
+    std::cout << "It is your turn!\n";
+    for (int i = 0; i < messages.size(); ++i) {
+        std::cout << messages[i] << "\n";
+    }
 }
 
 // sprava moze prist rozkuskovana na viacero sprav (dokopy ten isty obsah), resp viac sprav moze prist ako jedna velka => pocet sprav NIE je garantovany
