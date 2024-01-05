@@ -114,16 +114,15 @@ void MySocket::sendEndMessage() {
     this->sendData(this->endMessage);
 }
 
-std::string MySocket::receiveData() {
+std::vector<std::string>* MySocket::receiveData(int numOfMessagesToWaitFor) {
     int buffLen = 4096;
     char buffer [buffLen];
     memset(buffer, '\0', buffLen);
 
-    std::vector<std::string> messages;
+    std::vector<std::string>* messages = new std::vector<std::string>();
     int msgCount = 0;
 
-    std::cout << "Waiting for turn...\n";
-    while (msgCount < 2) { // receive 3 messages: 1. id; 2. board; 3. 'your turn message'
+    while (msgCount < /*numOfMessagesToWaitFor* DEBUG: for now wait for 2 messages */ 2) { // receive 3 messages: 1. id; 2. board; 3. 'your turn message'
         std::string receivedMsg = "";
         while (receivedMsg.find(SOCKET_TERMINATE_CHAR) == std::string::npos) {
             recv(connectSocket, buffer, buffLen, 0);
@@ -136,16 +135,13 @@ std::string MySocket::receiveData() {
 
         int index = 0;
         while ((index = receivedMsg.find(SOCKET_TERMINATE_CHAR)) != std::string::npos) {
-            messages.push_back(receivedMsg.substr(0, index + 1));
+            messages->push_back(receivedMsg.substr(0, index));
             receivedMsg = receivedMsg.substr(index + 1);
             msgCount++;
         }
     }
 
-    std::cout << "It is your turn!\n";
-    for (int i = 0; i < messages.size(); ++i) {
-        std::cout << messages[i] << "\n";
-    }
+    return messages;
 }
 
 // sprava moze prist rozkuskovana na viacero sprav (dokopy ten isty obsah), resp viac sprav moze prist ako jedna velka => pocet sprav NIE je garantovany

@@ -20,7 +20,7 @@ public:
     void sendData(const std::string& data);
     void sendEndMessage();
 
-    std::string receiveData();
+    std::vector<std::string>* receiveData(int numOfMessagesToWaitFor);
 protected:
     MySocket(SOCKET socket);
 private:

@@ -63,7 +63,7 @@ namespace Server {
         std::cout << "Sending player ids to clients...\n";
 
         for (auto & player : *players) {
-            std::string message = "$id:";
+            std::string message = "";
             std::string id = std::to_string(player->getId());
             message += id;
             message += END_MESSAGE;
@@ -80,10 +80,13 @@ namespace Server {
     void Game::SendUpdate() {
         while (!gameOver) {
             for (auto & player : *players) {
-                std::string message = "$board:";
+                std::string message = "";
                 std::string boardStr = board.toString();
                 message += boardStr;
                 message += END_MESSAGE;
+
+                std::cout << "Sending this updated board to clients...\n";
+                std::cout << boardStr << "\n";
 
                 {
                     std::unique_lock<std::mutex> lock(*player->getMutex());

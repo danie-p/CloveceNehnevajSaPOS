@@ -13,9 +13,12 @@ namespace Client
 	{
 	private:
 		MySocket* socket;
+        int playerId = 0;
+        int turn = 1;
+
 	public:
 		void Connect(std::string ipaddr, unsigned int port);
-        void WaitForStart();
+        void Play();
 		~ClientGame();
 	};
 }
