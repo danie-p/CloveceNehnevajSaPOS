@@ -15,6 +15,24 @@ Server::Board::Board() :
     this->homes.push_back(&homeY);
 }
 
+Server::Board::Board(std::vector<Player *> *players) {
+    this->players = players;
+}
+
+Server::Board::~Board() {
+    if (players != nullptr) {
+        for (int i = 0; i < players->size(); ++i) {
+            if (players->at(i) != nullptr) {
+                delete players->at(i);
+                players->at(i) = nullptr;
+            }
+        }
+
+        delete players;
+        players = nullptr;
+    }
+}
+
 void Server::Board::initializeGrid()
 {
     /*
@@ -559,3 +577,5 @@ std::string Server::Board::toString() {
 
     return result;
 }
+
+

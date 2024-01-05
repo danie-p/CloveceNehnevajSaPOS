@@ -9,6 +9,8 @@ namespace Server
     {
     public:
         Board();
+        Board(std::vector<Player*>* players);
+        ~Board();
         std::string toString();
         void display();
         bool movePawn(int playerId, char pawnNum, int moveSteps);	// move playerId's pawnNum-th pawn by moveSteps steps
@@ -63,6 +65,7 @@ namespace Server
         void tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn& pawn, Square& oldSquare);
         bool movePawnOut(Square& newSquare, Pawn& pawn);
 
+        std::vector<Player*>* players;
         Player* winner = nullptr;
     };
 }
