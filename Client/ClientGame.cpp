@@ -28,7 +28,7 @@ namespace Client
                 playerId = std::stoi(data->at(0));
 
             std::cout << "Updated board:\n";
-            std::cout << data->at(0) << "\n";
+            std::cout << data->at(1) << "\n";
             YouAreColor(playerId);
 
             // check if it's game over
@@ -43,7 +43,7 @@ namespace Client
                 int numThrown = ThrowDice();
                 int pawnPicked = PickPawn();
                 std::cout << "Press 'Enter' to finish your turn...\n";
-                std::cin.ignore();
+                std::getchar();
 
                 socket->sendData(std::to_string(numThrown));
                 socket->sendData(std::to_string(pawnPicked));
@@ -65,14 +65,14 @@ namespace Client
         std::uniform_int_distribution<> distrib(1, 6);
         int result = 0;
 
-        std::cout << "Time to throw the dice...\n";
-        std::cin.ignore();
+        std::cout << "Time to throw the dice, press 'Enter' to throw...\n";
+        std::getchar();
         result = distrib(gen);
         std::cout << "Result of throw: " << result << "\n";
 
         if (6 == result) {
-            std::cout << "You can throw again!\n";
-            std::cin.ignore();
+            std::cout << "You can throw again! Press 'Enter' to throw...\n";
+            std::getchar();
             int result2 = distrib(gen);
 
             std::cout << "Result of throw: " << result2 << "\n";
