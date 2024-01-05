@@ -18,12 +18,12 @@ namespace Server {
 
     class Game {
     private:
-        Board board;
         int turn = 1;
         int playerIdOnTurn = 1;
         bool gameOver = false;
 
         std::vector<Player*> players;
+        Board board{&players};
 
         std::thread* sendUpdateThread;
         std::thread* manageTurnThread;

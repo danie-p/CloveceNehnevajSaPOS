@@ -13,6 +13,7 @@ namespace Server {
             players.push_back(new Player(i + 1, clientSockets[i], 1, colors[i]));
         }
         std::cout << "Game instance created\n";
+        this->board.initializeGrid();
     }
 
     Game::~Game() {
@@ -123,7 +124,7 @@ namespace Server {
 
                     turnManaged = true;
                     updateSent = false;
-                    std::cout << "Client " << player->getId() << "finished his turn\n";
+                    std::cout << "Client " << player->getId() << " finished his turn\n";
                     cvSendUpdate.notify_one();
                 }
 

@@ -2,21 +2,14 @@
 #include <iostream>
 #include <algorithm>
 
-Server::Board::Board() :
-        grid(GRID_ROWS, std::vector<Square>(GRID_COLUMNS))
+Server::Board::Board(std::vector<Player*>* players) :
+        grid(GRID_ROWS, std::vector<Square>(GRID_COLUMNS)),
+        players(players)
 {
-    this->initializeGrid();
-    this->reorderPath();
-    this->reorderHomeG();
-    this->reorderHomeY();
     this->homes.push_back(&homeR);
     this->homes.push_back(&homeG);
     this->homes.push_back(&homeB);
     this->homes.push_back(&homeY);
-}
-
-Server::Board::Board(std::vector<Player *> *players) {
-    this->players = players;
 }
 
 Server::Board::~Board() {
@@ -35,13 +28,6 @@ Server::Board::~Board() {
 
 void Server::Board::initializeGrid()
 {
-    /*
-    Player* player = new Player(1, 42, 'R');
-    Player* player2 = new Player(2, 42, 'B');
-    Player* player3 = new Player(3, 42, 'Y');
-    Player* player4 = new Player(4, 42, 'G');
-    */
-
     char counterR = '1';
     char counterG = '1';
     char counterB = '1';
@@ -58,11 +44,9 @@ void Server::Board::initializeGrid()
                 i == 1 && j == 0 || i == 1 && j == 1)
             {
                 square.setSquareType(SquareType::StartR);
-                /*
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterR, player));
+                square.setPawn(new Pawn(counterR, this->players->at(0)));
                 counterR++;
-                */
                 this->startR.push_back(&square);
             }
 
@@ -71,11 +55,9 @@ void Server::Board::initializeGrid()
                 i == 1 && j == GRID_COLUMNS - 2 || i == 1 && j == GRID_COLUMNS - 1)
             {
                 square.setSquareType(SquareType::StartB);
-                /*
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterB, player2));
+                square.setPawn(new Pawn(counterB, this->players->at(1)));
                 counterB++;
-                */
                 this->startB.push_back(&square);
             }
 
@@ -84,11 +66,9 @@ void Server::Board::initializeGrid()
                 i == GRID_ROWS - 1 && j == 0 || i == GRID_ROWS - 1 && j == 1)
             {
                 square.setSquareType(SquareType::StartY);
-                /*
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterY, player3));
+                square.setPawn(new Pawn(counterY, this->players->at(2)));
                 counterY++;
-                */
                 this->startY.push_back(&square);
             }
 
@@ -97,11 +77,9 @@ void Server::Board::initializeGrid()
                 i == GRID_ROWS - 1 && j == GRID_COLUMNS - 2 || i == GRID_ROWS - 1 && j == GRID_COLUMNS - 1)
             {
                 square.setSquareType(SquareType::StartG);
-                /*
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterG, player4));
+                square.setPawn(new Pawn(counterG, this->players->at(3)));
                 counterG++;
-                */
                 this->startG.push_back(&square);
             }
 
@@ -146,6 +124,10 @@ void Server::Board::initializeGrid()
             if (i == GRID_ROWS - 1 && j == 4) square.setSquareType(SquareType::PathY);
         }
     }
+
+    this->reorderPath();
+    this->reorderHomeG();
+    this->reorderHomeY();
 }
 
 void Server::Board::display()
@@ -155,10 +137,9 @@ void Server::Board::display()
 
 bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 {
-    pawnNum = '0' + pawnNum;
     Square* oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
     if (oldSquare == nullptr)
-         return false;
+        return false;
 
     Pawn* pawnPtr = oldSquare->getPawn();
     if (pawnPtr == nullptr)
@@ -171,7 +152,7 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
     // === START ===
     if (this->isInStart(pawn, index)) // tu index nepotrebujem
     {
-        if (moveSteps == 6)
+        if (moveSteps >= 6)
         {
             int row;
             int column;

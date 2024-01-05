@@ -8,7 +8,6 @@ namespace Server
     class Board
     {
     public:
-        Board();
         Board(std::vector<Player*>* players);
         ~Board();
         std::string toString();
@@ -37,11 +36,12 @@ namespace Server
             return nullptr;
         }
 
+        void initializeGrid();
+
     private:
         static const int GRID_ROWS = 11;
         static const int GRID_COLUMNS = 11;
         std::vector<std::vector<Square>> grid;
-        void initializeGrid();
 
         std::vector<Square*> path;
         void reorderPath();

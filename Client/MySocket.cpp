@@ -115,7 +115,7 @@ void MySocket::sendEndMessage() {
 }
 
 std::vector<std::string>* MySocket::receiveData(int numOfMessagesToWaitFor) {
-    int buffLen = 4096;
+    const int buffLen = 4096;
     char buffer [buffLen];
     memset(buffer, '\0', buffLen);
 
