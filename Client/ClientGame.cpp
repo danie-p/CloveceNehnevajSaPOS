@@ -22,7 +22,7 @@ namespace Client
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
 
-            int numOfMessagesToWaitFor = turn == 1 ? 3 : 2;
+            int numOfMessagesToWaitFor = turn == 1 ? 3 : 2; // on first turn also wait for player id
             std::vector<std::string> *data = socket->receiveData(numOfMessagesToWaitFor);
 
             if (numOfMessagesToWaitFor == 3) {
@@ -36,7 +36,14 @@ namespace Client
             std::cout << "Updated board:\n";
             std::cout << data->at(0) << "\n";
 
-            if (data->size() == 2) {
+            if (data->size() == 2) { // in subsequent turns, wait for just the board and id of player that is on turn
+                // check if it's game over
+                if (data->at(1).find("gameover") != std::string::npos) {
+                    // it's game over, what now
+                    gameOver = true;
+                    break;
+                }
+
                 if (data->at(1) == std::to_string(playerId)) { // it is your turn
                     std::cout << "It is your turn.\n";
 
@@ -44,10 +51,17 @@ namespace Client
                     int pawnPicked = PickPawn();
                     std::cout << "Press 'Enter' to finish your turn...\n";
                     std::cin.ignore();
-                    // posli hod a panacika serveru...
+
+                    socket->sendData(std::to_string(numThrown));
+                    socket->sendData(std::to_string(pawnPicked));
                 }
             }
         }
+
+
+        std::cout << "The game is over!\n";
+        std::string winnerId = data->at(1).substr(data->at(0).size() - 2, data->at(0).size() - 1);
+        std::cout << "Player Id " << winnerId << " wins!\n";
 
         delete data;
     }
