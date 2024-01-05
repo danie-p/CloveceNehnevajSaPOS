@@ -157,7 +157,14 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 {
     pawnNum = '0' + pawnNum;
     Square* oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
-    Pawn& pawn = *oldSquare->getPawn();
+    if (oldSquare == nullptr)
+         return false;
+
+    Pawn* pawnPtr = oldSquare->getPawn();
+    if (pawnPtr == nullptr)
+        return false;
+
+    Pawn& pawn = *pawnPtr;
 
     int index = -1;
 
