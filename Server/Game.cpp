@@ -85,6 +85,7 @@ namespace Server {
                 std::vector<std::string> *messages = new std::vector<std::string>();
                 int msgCount = 0;
 
+                std::cout << "Reading input from client " << player->getId() << "...\n";
                 while (msgCount < 2) { // receive 2 messages: 1. throw; 2. pawn number
                     std::string receivedMsg = "";
                     while (receivedMsg.find(END_MESSAGE) == std::string::npos) {
@@ -122,6 +123,7 @@ namespace Server {
 
                     turnManaged = true;
                     updateSent = false;
+                    std::cout << "Client " << player->getId() << "finished his turn\n";
                     cvSendUpdate.notify_one();
                 }
 
