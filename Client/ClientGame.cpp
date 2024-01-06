@@ -19,12 +19,14 @@ namespace Client
     // 0: board
     // 1: player on turn / game over message + winner id
     // 2: board messages
-    // 3: player id
+    // 3: turn
+    // 4: playerId
     void ClientGame::Play() {
         std::vector<std::string> *data;
         std::string board;
         std::string playerOnTurn;
         std::string boardMessages;
+        std::string msgTurn;
         std::string msgPlayerId;
 
         while (!gameOver) {
@@ -34,12 +36,15 @@ namespace Client
             board = data->at(0);
             playerOnTurn = data->at(1);
             boardMessages = "Last turn: " + (data->at(2).empty() ? "No data\n" : data->at(2)) + "\n";
-            msgPlayerId = data->at(3);
+            msgTurn = data->at(3);
+            msgPlayerId = data->at(4);
+
+            turn = std::stoi(msgTurn);
 
             if (1 == turn)
                 playerId = std::stoi(msgPlayerId);
 
-            std::cout << "Turn " << turn << "\n";
+            std::cout << "\nTurn " << turn << "\n";
             std::cout << "Updated board:\n";
             std::cout << board;
             std::cout << boardMessages;
@@ -65,8 +70,6 @@ namespace Client
                 socket->sendData(std::to_string(numThrown));
                 socket->sendData(std::to_string(pawnPicked));
             }
-
-            turn++;
         }
 
         std::cout << "The game is over!\n";

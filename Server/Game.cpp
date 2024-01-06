@@ -50,10 +50,12 @@ namespace Server {
     // 0: board
     // 1: player on turn / game over message + winner id
     // 2: board messages
-    // 3: player id
+    // 3: turn
+    // 4: playerId
     void Game::SendUpdate() {
         while (!gameOver) {
             std::vector<std::string> messages;
+
             {
                 std::unique_lock<std::mutex> lock(dataLock);
                 if (!turnManaged)
@@ -71,6 +73,7 @@ namespace Server {
                 }
 
                 messages.push_back(board.getMessages());
+                messages.push_back(std::to_string(turn));
 
                 updateSent = true;
                 turnManaged = false;
@@ -146,6 +149,8 @@ namespace Server {
                     char pawnNum = messages->at(1).c_str()[0];
 
                     board.movePawn(player->getId(), pawnNum, numThrown);
+
+                    turn++;
 
                     if (board.isGameOver())
                         gameOver = true;
