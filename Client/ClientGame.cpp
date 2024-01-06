@@ -27,6 +27,7 @@ namespace Client
             if (1 == turn)
                 playerId = std::stoi(data->at(0));
 
+            std::cout << "Turn " << turn << "\n";
             std::cout << "Updated board:\n";
             std::cout << data->at(1) << "\n";
             YouAreColor(playerId);
@@ -41,7 +42,11 @@ namespace Client
                 std::cout << "It is your turn.\n";
 
                 int numThrown = ThrowDice();
-                int pawnPicked = PickPawn();
+
+                int pawnPicked = 1;
+                if (numThrown != 0)
+                    pawnPicked = PickPawn();
+
                 system("pause");
 
                 socket->sendData(std::to_string(numThrown));
@@ -64,20 +69,29 @@ namespace Client
         std::uniform_int_distribution<> distrib(1, 6);
         int result = 0;
 
-        std::cout << "Time to throw the dice...\n";
-        system("pause");
-        result = distrib(gen);
-        std::cout << "Result of throw: " << result << "\n";
-
-        if (6 == result) {
-            std::cout << "You can throw again!...\n";
-            system("pause");
-            int result2 = distrib(gen);
-
-            std::cout << "Result of throw: " << result2 << "\n";
-            std::cout << "Together it is: " << result + result2 << "\n";
-            result += result2;
+        if (1 == turn) {
+            const int attempts = 5;
+            std::cout << "First turn," << attempts << " attempts to throw 6...\n";
+            for (int i = 0; i < attempts; ++i) {
+                system("pause");
+                result = distrib(gen);
+                if (6 == result) {
+                    std::cout << "Success! Result of throw is 6\n";
+                    return result;
+                } else {
+                    std::cout << "Result of throw is " << result << ". Bad luck!\n";
+                    result = 0;
+                }
+            }
+            std::cout << "Better luck next time!\n";
         }
+        else {
+            std::cout << "Time to throw the dice...\n";
+            system("pause");
+            result = distrib(gen);
+            std::cout << "Result of throw: " << result << "\n";
+        }
+
         return result;
     }
 
@@ -104,10 +118,11 @@ namespace Client
     void ClientGame::YouAreColor(int id) {
         std::cout << "You play as color ";
         switch (id) {
-            case 1: std::cout << "RED\n"; break;
-            case 2: std::cout << "GREEN\n"; break;
-            case 3: std::cout << "BLUE\n"; break;
-            case 4: std::cout << "YELLOW\n"; break;
+            case 1: std::cout << RED << "RED\n"; break;
+            case 2: std::cout << GREEN  << "GREEN\n"; break;
+            case 3: std::cout << BLUE  << "BLUE\n"; break;
+            case 4: std::cout << YELLOW  << "YELLOW\n"; break;
         }
+        std::cout << RESET;
     }
 }
