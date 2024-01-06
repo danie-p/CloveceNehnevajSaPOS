@@ -56,7 +56,7 @@ void Server::Board::initializeGrid()
             {
                 square.setSquareType(SquareType::StartB);
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterB, this->players->at(1)));
+                square.setPawn(new Pawn(counterB, this->players->at(2)));
                 counterB++;
                 this->startB.push_back(&square);
             }
@@ -67,7 +67,7 @@ void Server::Board::initializeGrid()
             {
                 square.setSquareType(SquareType::StartY);
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterY, this->players->at(2)));
+                square.setPawn(new Pawn(counterY, this->players->at(3)));
                 counterY++;
                 this->startY.push_back(&square);
             }
@@ -78,7 +78,7 @@ void Server::Board::initializeGrid()
             {
                 square.setSquareType(SquareType::StartG);
                 square.setEmpty(false);
-                square.setPawn(new Pawn(counterG, this->players->at(3)));
+                square.setPawn(new Pawn(counterG, this->players->at(1)));
                 counterG++;
                 this->startG.push_back(&square);
             }
