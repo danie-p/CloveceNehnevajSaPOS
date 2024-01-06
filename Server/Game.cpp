@@ -60,8 +60,14 @@ namespace Server {
                     message += board.toString();
                     message += END_MESSAGE;
 
-                    message += std::to_string(playerIdOnTurn);
-                    message += END_MESSAGE;
+                    if (!gameOver) {
+                        message += std::to_string(playerIdOnTurn);
+                        message += END_MESSAGE;
+                    }
+                    else {
+                        message += std::to_string(board.getWinner()->getId());
+                        message += END_MESSAGE;
+                    }
 
                     message += board.getMessages();
                     message += END_MESSAGE;
@@ -73,6 +79,9 @@ namespace Server {
 
                 std::cout << "Sending id, board and id on turn to client " << player->getId() << "...\n";
                 write(player->getSocket(), message.c_str(), message.size() + 1);
+
+                if (gameOver)
+                    break;
             }
         }
     }
@@ -125,10 +134,16 @@ namespace Server {
 
                     board.movePawn(player->getId(), pawnNum, numThrown);
 
+                    if (board.isGameOver())
+                        gameOver = true;
+
                     turnManaged = true;
                     updateSent = false;
                     std::cout << "Client " << player->getId() << " finished his turn\n";
                     cvSendUpdate.notify_one();
+
+                    if (gameOver)
+                        break;
                 }
 
                 delete messages;
