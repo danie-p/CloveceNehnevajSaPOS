@@ -15,29 +15,29 @@ namespace Client
         }
     }
 
-    // Receive message order:
-    // 0: board
-    // 1: player on turn / game over message + winner id
-    // 2: board messages
-    // 3: turn
-    // 4: playerId
+    // Message order:
+    // 0: playerId
+    // 1: board
+    // 2: player on turn / game over message + winner id
+    // 3: board messages
+    // 4: turn
     void ClientGame::Play() {
         std::vector<std::string> *data;
+        std::string msgPlayerId;
         std::string board;
         std::string playerOnTurn;
         std::string boardMessages;
         std::string msgTurn;
-        std::string msgPlayerId;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
             data = socket->receiveData(4);
 
-            board = data->at(0);
-            playerOnTurn = data->at(1);
-            boardMessages = "Last turn: " + (data->at(2).empty() ? "No data\n" : data->at(2)) + "\n";
-            msgTurn = data->at(3);
-            msgPlayerId = data->at(4);
+            msgPlayerId = data->at(0);
+            board = data->at(1);
+            playerOnTurn = data->at(2);
+            boardMessages = "Last turn: " + (data->at(3).empty() ? "No data\n" : data->at(3)) + "\n";
+            msgTurn = data->at(4);
 
             turn = std::stoi(msgTurn);
 

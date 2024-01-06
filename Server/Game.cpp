@@ -2,7 +2,6 @@
 // Created by Kristian on 3. 1. 2024.
 //
 
-#include <csignal>
 #include "Game.h"
 
 namespace Server {
@@ -47,14 +46,14 @@ namespace Server {
     }
 
     // Message order:
-    // 0: board
-    // 1: player on turn / game over message + winner id
-    // 2: board messages
-    // 3: turn
-    // 4: playerId
+    // 0: playerId
+    // 1: board
+    // 2: player on turn / game over message + winner id
+    // 3: board messages
+    // 4: turn
     void Game::SendUpdate() {
         while (!gameOver) {
-            std::vector<std::string> messages;
+            std::list<std::string> messages;
 
             {
                 std::unique_lock<std::mutex> lock(dataLock);
@@ -82,16 +81,16 @@ namespace Server {
 
             std::cout << "Sending id, board and id on turn to clients...\n";
             for (auto& player : players) {
-                messages.push_back(std::to_string(player->getId()));
+                messages.push_front(std::to_string(player->getId()));
 
                 std::string finalMessage = "";
-                for (int i = 0; i < messages.size(); ++i) {
-                    finalMessage += messages[i];
+                for (const auto & message : messages) {
+                    finalMessage += message;
                     finalMessage += END_MESSAGE;
                 }
 
                 write(player->getSocket(), finalMessage.c_str(), finalMessage.size() + 1);
-                messages.pop_back();
+                messages.pop_front();
             }
 
             if (gameOver)

@@ -11,6 +11,8 @@
 #include <strings.h>
 #include <iostream>
 #include <condition_variable>
+#include <csignal>
+#include <list>
 
 #include "Board.h"
 
