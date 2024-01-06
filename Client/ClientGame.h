@@ -24,7 +24,8 @@ namespace Client
         int turn = 1;
         bool gameOver = false;
         std::random_device rd;
-        std::mt19937 gen = std::mt19937(rd());
+        std::mt19937 gen{rd()};
+        std::uniform_int_distribution<> distrib{1, 6};
 
 	public:
         const std::string GAME_OVER = "GAME_OVER";

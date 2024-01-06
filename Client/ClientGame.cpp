@@ -31,7 +31,7 @@ namespace Client
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-            data = socket->receiveData(4);
+            data = socket->receiveData(5);
 
             msgPlayerId = data->at(0);
             board = data->at(1);
@@ -74,13 +74,13 @@ namespace Client
 
         std::cout << "The game is over!\n";
         std::string winnerId = playerOnTurn.substr(playerOnTurn.size() - 2, playerOnTurn.size() - 1);
+        // TODO: better identify the winner (by color)
         std::cout << "Player Id " << winnerId << " wins!\n";
 
         delete data;
     }
 
     int ClientGame::ThrowDice() {
-        std::uniform_int_distribution<> distrib(1, 6);
         int result = 0;
 
         if (turn >= 1 && turn <= 4) {
@@ -88,7 +88,7 @@ namespace Client
             std::cout << "First three turns, you have " << attempts << " attempts to throw 6...\n";
             for (int i = 0; i < attempts; ++i) {
                 system("pause");
-                result = distrib(gen);
+                result = this->distrib(this->gen);
                 if (6 == result) {
                     std::cout << "Success! Result of throw is 6\n";
                     return result;
