@@ -24,6 +24,15 @@ Server::Board::~Board() {
         delete players;
         players = nullptr;
     }
+
+    for (auto& row : this->grid) {
+        for (auto& square : row) {
+            if (!square.isEmpty() && square.getPawn()) {
+                delete square.getPawn();
+                square.setPawn(nullptr);
+            }
+        }
+    }
 }
 
 void Server::Board::initializeGrid()
