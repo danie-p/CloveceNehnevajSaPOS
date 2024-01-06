@@ -1,4 +1,3 @@
-#include <random>
 #include "ClientGame.h"
 
 namespace Client
@@ -64,8 +63,6 @@ namespace Client
     }
 
     int ClientGame::ThrowDice() {
-        std::random_device rd;
-        std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 6);
         int result = 0;
 

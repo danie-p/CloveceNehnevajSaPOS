@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <thread>
+#include <random>
 
 #include "MySocket.h"
 
@@ -22,6 +23,8 @@ namespace Client
         int playerId = 0;
         int turn = 1;
         bool gameOver = false;
+        std::random_device rd;
+        std::mt19937 gen = std::mt19937(rd());
 
 	public:
 		void Connect(std::string ipaddr, unsigned int port);
