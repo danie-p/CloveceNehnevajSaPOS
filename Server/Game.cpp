@@ -63,6 +63,9 @@ namespace Server {
                     message += std::to_string(playerIdOnTurn);
                     message += END_MESSAGE;
 
+                    message += board.getMessages();
+                    message += END_MESSAGE;
+
                     updateSent = true;
                     turnManaged = false;
                     cvManagePlayerTurn.notify_one();

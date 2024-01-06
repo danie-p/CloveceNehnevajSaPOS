@@ -137,6 +137,9 @@ void Server::Board::display()
 
 bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 {
+    this->messages.str("");
+    this->messages.clear();
+
     Square* oldSquare = this->getSquareWithPlayersPawn(playerId, pawnNum);
     if (oldSquare == nullptr)
         return false;
@@ -170,10 +173,12 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             oldSquare->setPawn(nullptr);
             newSquare.setEmpty(false);
             newSquare.setPawn(&pawn);
-            std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " from start to path.\n";
+            this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] moved pawn " << pawnNum << " from start to path.\n";
+            std::cout << this->messages.str();
             return true;
         }
-        std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " out of start because they didn't roll a 6.\n";
+        this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " out of start because they didn't roll a 6.\n";
+        std::cout << this->messages.str();
         return true;
     }
 
@@ -185,7 +190,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             case 'R':
                 if (index < 32 && index + moveSteps >= 36)
                 {
-                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    std::cout << this->messages.str();
                     return true;
                 }
                 if (!(index >= 32 && index <= 35) && index + moveSteps >= 32 && index + moveSteps < 36)
@@ -198,7 +204,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             case 'G':
                 if (index < 12 && index + moveSteps >= 16)
                 {
-                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    std::cout << this->messages.str();
                     return true;
                 }
                 if (!(index >= 12 && index <= 15) && index + moveSteps >= 12 && index + moveSteps < 16)
@@ -211,7 +218,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             case 'B':
                 if (index < 2 && index + moveSteps >= 6)
                 {
-                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    std::cout << this->messages.str();
                     return true;
                 }
                 if (!(index >= 2 && index <= 5) && (index + moveSteps) % 40 >= 2 && (index + moveSteps) % 40 < 6)
@@ -224,7 +232,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
             case 'Y':
                 if (index < 22 && index + moveSteps >= 26)
                 {
-                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " beyond its starting place.\n";
+                    std::cout << this->messages.str();
                     return true;
                 }
                 if (!(index >= 22 && index <= 25) && index + moveSteps >= 22 && index + moveSteps < 26)
@@ -250,7 +259,8 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
         newSquare.setEmpty(false);
         newSquare.setPawn(&pawn);
 
-        std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " along the path.\n";
+        this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] moved pawn " << pawnNum << " along the path.\n";
+        std::cout << this->messages.str();
         return true;
     }
 
@@ -280,14 +290,17 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
                     oldSquare->setPawn(nullptr);
                     newSquare.setEmpty(false);
                     newSquare.setPawn(&pawn);
-                    std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " further inside the home.\n";
+                    this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] moved pawn " << pawnNum << " further inside the home.\n";
+                    std::cout << this->messages.str();
                 } else {
-                    std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " further inside the home because the place is already occupied.\n";
+                    this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " further inside the home because the place is already occupied.\n";
+                    std::cout << this->messages.str();
                 }
             }
             return true;
         }
-        std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " further inside the home.\n";
+        this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " further inside the home.\n";
+        std::cout << this->messages.str();
         return true;
     }
 
@@ -499,11 +512,13 @@ void Server::Board::tryToGoHome(std::vector<Square*>* home, int indexHome, Pawn&
         pawn.isAtHome = true;
         oldSquare.setEmpty(true);
         oldSquare.setPawn(nullptr);
-        std::cout << pawn.player->getNick() << " moved pawn " << pawnNum << " from path to home.\n";
+        this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] moved pawn " << pawnNum << " from path to home.\n";
+        std::cout << this->messages.str();
     }
     else
     {
-        std::cout << pawn.player->getNick() << " couldn't move pawn " << pawnNum << " to home because the place is already occupied.\n";
+        this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't move pawn " << pawnNum << " to home because the place is already occupied.\n";
+        std::cout << this->messages.str();
     }
 }
 
@@ -513,7 +528,8 @@ bool Server::Board::movePawnOut(Square& newSquare, Pawn& pawn)
 
     if (pawn.player == pawnOut->player)
     {
-        std::cout << "Player " << pawn.player->getNick() << " couldn't make the move and kick out their own pawn.\n";
+        this->messages << "Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "] couldn't make the move and kick out their own pawn.\n";
+        std::cout << this->messages.str();
         return false;
     }
     else
@@ -544,7 +560,8 @@ bool Server::Board::movePawnOut(Square& newSquare, Pawn& pawn)
             pawnOutSquare.setPawn(pawnOut);
         }
 
-        std::cout << "Sorry! " << pawn.player->getNick() << " kicked out " << pawnOut->player->getNick() << "\'s pawn " << pawnOut->number << " from path to start.\n";
+        this->messages << "Sorry! Player " << pawn.player->getId() << " [" << pawn.player->getFullColor() << "]\'s pawn " << pawn.number << " kicked out Player " << pawnOut->player->getId() << " [" << pawnOut->player->getFullColor() << "]\'s pawn " << pawnOut->number << " from path to start.\n";
+        std::cout << this->messages.str();
     }
     return true;
 }

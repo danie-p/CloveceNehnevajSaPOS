@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <sstream>
 #include "Square.h"
 
 namespace Server
@@ -15,6 +16,7 @@ namespace Server
         bool movePawn(int playerId, char pawnNum, int moveSteps);	// move playerId's pawnNum-th pawn by moveSteps steps
         bool isGameOver();	// check if game is over
         Player* getWinner();	// get winner id
+        std::string getMessages() { return this->messages.str(); };
 
         Server::Square& getSquare(int rowIndex, int columnIndex)
         {
@@ -67,5 +69,6 @@ namespace Server
 
         std::vector<Player*>* players;
         Player* winner = nullptr;
+        std::stringstream messages;
     };
 }

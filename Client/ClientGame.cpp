@@ -21,14 +21,15 @@ namespace Client
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
 
-            data = socket->receiveData(3);
+            data = socket->receiveData(4);
 
             if (1 == turn)
                 playerId = std::stoi(data->at(0));
 
             std::cout << "Turn " << turn << "\n";
             std::cout << "Updated board:\n";
-            std::cout << data->at(1) << "\n";
+            std::cout << data->at(1);
+            std::cout << "Last turn: " << (data->at(3).empty() ? "No data\n" : data->at(3)) << "\n";
             YouAreColor(playerId);
 
             // check if it's game over
@@ -68,7 +69,7 @@ namespace Client
 
         if (1 == turn) {
             const int attempts = 5;
-            std::cout << "First turn," << attempts << " attempts to throw 6...\n";
+            std::cout << "First turn, " << attempts << " attempts to throw 6...\n";
             for (int i = 0; i < attempts; ++i) {
                 system("pause");
                 result = distrib(gen);
