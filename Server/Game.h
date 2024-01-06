@@ -36,6 +36,7 @@ namespace Server {
 
     public:
         const std::string END_MESSAGE = "%";
+        const std::string GAME_OVER = "GAME_OVER";
 
         Game(std::vector<int> clientSockets);
         ~Game();
@@ -43,7 +44,6 @@ namespace Server {
         void End();
         void SendUpdate();
         void ManagePlayerTurn();
-        //void SendIds();
     };
 
 }

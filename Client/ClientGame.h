@@ -27,6 +27,8 @@ namespace Client
         std::mt19937 gen = std::mt19937(rd());
 
 	public:
+        const std::string GAME_OVER = "GAME_OVER";
+
 		void Connect(std::string ipaddr, unsigned int port);
         void Play();
         int ThrowDice();

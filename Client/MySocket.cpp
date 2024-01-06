@@ -114,6 +114,11 @@ void MySocket::sendEndMessage() {
     this->sendData(this->endMessage);
 }
 
+// Receive message order:
+// 0: board
+// 1: player on turn / game over message + winner id
+// 2: board messages
+// 3: player id
 std::vector<std::string>* MySocket::receiveData(int numOfMessagesToWaitFor) {
     const int buffLen = 4096;
     char buffer [buffLen];

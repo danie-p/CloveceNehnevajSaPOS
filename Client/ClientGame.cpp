@@ -15,30 +15,43 @@ namespace Client
         }
     }
 
+    // Receive message order:
+    // 0: board
+    // 1: player on turn / game over message + winner id
+    // 2: board messages
+    // 3: player id
     void ClientGame::Play() {
         std::vector<std::string> *data;
+        std::string board;
+        std::string playerOnTurn;
+        std::string boardMessages;
+        std::string msgPlayerId;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-
             data = socket->receiveData(4);
 
+            board = data->at(0);
+            playerOnTurn = data->at(1);
+            boardMessages = "Last turn: " + (data->at(2).empty() ? "No data\n" : data->at(2)) + "\n";
+            msgPlayerId = data->at(3);
+
             if (1 == turn)
-                playerId = std::stoi(data->at(0));
+                playerId = std::stoi(msgPlayerId);
 
             std::cout << "Turn " << turn << "\n";
             std::cout << "Updated board:\n";
-            std::cout << data->at(1);
-            std::cout << "Last turn: " << (data->at(3).empty() ? "No data\n" : data->at(3)) << "\n";
+            std::cout << board;
+            std::cout << boardMessages;
             YouAreColor(playerId);
 
             // check if it's game over
-            if (data->at(2).find("gameover") != std::string::npos) {
+            if (playerOnTurn.find(GAME_OVER) != std::string::npos) {
                 gameOver = true;
                 break;
             }
 
-            if (data->at(2) == std::to_string(playerId)) {
+            if (playerOnTurn == std::to_string(playerId)) {
                 std::cout << "It is your turn.\n";
 
                 int numThrown = ThrowDice();
@@ -57,7 +70,7 @@ namespace Client
         }
 
         std::cout << "The game is over!\n";
-        std::string winnerId = data->at(1).substr(data->at(0).size() - 2, data->at(0).size() - 1);
+        std::string winnerId = playerOnTurn.substr(playerOnTurn.size() - 2, playerOnTurn.size() - 1);
         std::cout << "Player Id " << winnerId << " wins!\n";
 
         delete data;
@@ -68,8 +81,8 @@ namespace Client
         int result = 0;
 
         if (turn >= 1 && turn <= 4) {
-            const int attempts = 5;
-            std::cout << "First turn, " << attempts << " attempts to throw 6...\n";
+            const int attempts = 3;
+            std::cout << "First three turns, you have " << attempts << " attempts to throw 6...\n";
             for (int i = 0; i < attempts; ++i) {
                 system("pause");
                 result = distrib(gen);

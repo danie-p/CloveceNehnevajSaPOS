@@ -46,49 +46,59 @@ namespace Server {
         }
     }
 
+    // Message order:
+    // 0: board
+    // 1: player on turn / game over message + winner id
+    // 2: board messages
+    // 3: player id
     void Game::SendUpdate() {
         while (!gameOver) {
-            for (auto& player : players) {
-                std::string message = "";
-                message += std::to_string(player->getId());
-                message += END_MESSAGE;
-                {
-                    std::unique_lock<std::mutex> lock(dataLock);
-                    if (!turnManaged)
-                        cvSendUpdate.wait(lock);
+            std::vector<std::string> messages;
+            {
+                std::unique_lock<std::mutex> lock(dataLock);
+                if (!turnManaged)
+                    cvSendUpdate.wait(lock);
 
-                    message += board.toString();
-                    message += END_MESSAGE;
+                messages.push_back(board.toString());
 
-                    if (!gameOver) {
-                        message += std::to_string(playerIdOnTurn);
-                        message += END_MESSAGE;
-                    }
-                    else {
-                        message += std::to_string(board.getWinner()->getId());
-                        message += END_MESSAGE;
-                    }
-
-                    message += board.getMessages();
-                    message += END_MESSAGE;
-
-                    updateSent = true;
-                    turnManaged = false;
-                    cvManagePlayerTurn.notify_one();
+                if (!gameOver) {
+                    messages.push_back(std::to_string(playerIdOnTurn));
+                }
+                else {
+                    std::string winnerMsg = GAME_OVER;
+                    winnerMsg += std::to_string(board.getWinner()->getId());
+                    messages.push_back(winnerMsg);
                 }
 
-                std::cout << "Sending id, board and id on turn to client " << player->getId() << "...\n";
-                for (auto& player : players) {
-                    message.at(0) = char(player->getId() + '0');
-                    write(player->getSocket(), message.c_str(), message.size() + 1);
-                }
+                messages.push_back(board.getMessages());
 
-                if (gameOver)
-                    break;
+                updateSent = true;
+                turnManaged = false;
+                cvManagePlayerTurn.notify_one();
             }
+
+            std::cout << "Sending id, board and id on turn to clients...\n";
+            for (auto& player : players) {
+                messages.push_back(std::to_string(player->getId()));
+
+                std::string finalMessage = "";
+                for (int i = 0; i < messages.size(); ++i) {
+                    finalMessage += messages[i];
+                    finalMessage += END_MESSAGE;
+                }
+
+                write(player->getSocket(), finalMessage.c_str(), finalMessage.size() + 1);
+                messages.pop_back();
+            }
+
+            if (gameOver)
+                break;
         }
     }
 
+    // Receive message order:
+    // 0: number thrown / disconnect message
+    // 1: pawn to be moved / disconnect message
     // must wait for work done by the SendUpdate thread
     void Game::ManagePlayerTurn() {
         while (!gameOver) {
