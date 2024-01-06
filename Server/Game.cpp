@@ -78,7 +78,10 @@ namespace Server {
                 }
 
                 std::cout << "Sending id, board and id on turn to client " << player->getId() << "...\n";
-                write(player->getSocket(), message.c_str(), message.size() + 1);
+                for (auto& player : players) {
+                    message.at(0) = char(player->getId() + '0');
+                    write(player->getSocket(), message.c_str(), message.size() + 1);
+                }
 
                 if (gameOver)
                     break;

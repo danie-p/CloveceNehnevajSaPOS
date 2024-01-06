@@ -67,7 +67,7 @@ namespace Client
         std::uniform_int_distribution<> distrib(1, 6);
         int result = 0;
 
-        if (1 == turn) {
+        if (turn >= 1 && turn <= 4) {
             const int attempts = 5;
             std::cout << "First turn, " << attempts << " attempts to throw 6...\n";
             for (int i = 0; i < attempts; ++i) {
