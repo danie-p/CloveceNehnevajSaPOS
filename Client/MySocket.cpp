@@ -114,12 +114,12 @@ void MySocket::sendEndMessage() {
     this->sendData(this->endMessage);
 }
 
-std::vector<std::string>* MySocket::receiveData(int numOfMessagesToWaitFor) {
+GameData* MySocket::receiveData(int numOfMessagesToWaitFor) {
     const int buffLen = 4096;
     char buffer [buffLen];
     memset(buffer, '\0', buffLen);
 
-    std::vector<std::string>* messages = new std::vector<std::string>();
+    std::vector<std::string> messages;
     int msgCount = 0;
 
     while (msgCount < numOfMessagesToWaitFor) {
@@ -135,13 +135,13 @@ std::vector<std::string>* MySocket::receiveData(int numOfMessagesToWaitFor) {
 
         int index = 0;
         while ((index = receivedMsg.find(SOCKET_TERMINATE_CHAR)) != std::string::npos) {
-            messages->push_back(receivedMsg.substr(0, index));
+            messages.push_back(receivedMsg.substr(0, index));
             receivedMsg = receivedMsg.substr(index + 1);
             msgCount++;
         }
     }
 
-    return messages;
+    return new GameData(&messages);
 }
 
 // sprava moze prist rozkuskovana na viacero sprav (dokopy ten isty obsah), resp viac sprav moze prist ako jedna velka => pocet sprav NIE je garantovany

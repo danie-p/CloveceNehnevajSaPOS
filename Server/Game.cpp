@@ -53,6 +53,7 @@ namespace Server {
     // 4: turn
     // 5: game over message
     // 6: winner color
+    // 7: player on turn color
     void Game::SendUpdate() {
         while (!gameOver) {
             std::list<std::string> messages;
@@ -74,6 +75,8 @@ namespace Server {
                     messages.emplace_back("");
                     messages.emplace_back("");
                 }
+
+                messages.push_back(players[playerIdOnTurn - 1]->getFullColor());
 
                 updateSent = true;
                 turnManaged = false;

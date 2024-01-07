@@ -23,46 +23,34 @@ namespace Client
     // 4: turn
     // 5: game over message
     // 6: winner color
+    // 7: player on turn color
     void ClientGame::Play() {
-        std::vector<std::string> *data;
-        std::string msgPlayerId;
-        std::string board;
-        std::string playerOnTurn;
-        std::string boardMessages;
-        std::string msgTurn;
-        std::string gameOverStr;
-        std::string winnerColor;
+        GameData* data;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-            data = socket->receiveData(7);
+            data = socket->receiveData(8);
 
-            msgPlayerId = data->at(0);
-            board = data->at(1);
-            playerOnTurn = data->at(2);
-            boardMessages = "Last turn:\n" + (data->at(3).empty() ? "No data\n" : data->at(3)) + "\n";
-            msgTurn = data->at(4);
-            gameOverStr = data->at(5);
-            winnerColor = data->at(6);
-
-            turn = std::stoi(msgTurn);
+            turn = std::stoi(data->turn);
 
             if (1 == turn)
-                playerId = std::stoi(msgPlayerId);
+                playerId = std::stoi(data->playerId);
 
             std::cout << "\nTurn " << turn << "\n";
-            std::cout << "Updated board:\n";
-            std::cout << board;
-            std::cout << boardMessages;
             YouAreColor(playerId);
+            std::cout << "Game Board:\n";
+            std::cout << data->board;
+            std::cout << "Last turn's events:\n";
+            std::cout << data->boardMessages;
+            std::cout << "\n";
 
             // check if it's game over
-            if (gameOverStr == GAME_OVER) {
+            if (data->gameOver == GAME_OVER) {
                 gameOver = true;
                 break;
             }
 
-            if (playerOnTurn == std::to_string(playerId)) {
+            if (data->playerOnTurn == std::to_string(playerId)) {
                 std::cout << "It is your turn.\n";
 
                 int numThrown = ThrowDice();
@@ -76,10 +64,13 @@ namespace Client
                 socket->sendData(std::to_string(numThrown));
                 socket->sendData(std::to_string(pawnPicked));
             }
+            else {
+                std::cout << "It is player's " << data->playerOnTurn << " [" << data->playerOnTurnColor << "] turn.\n";
+            }
         }
 
         std::cout << "The game is over!\n";
-        std::cout << "Player Id " << winnerColor << " wins!\n";
+        std::cout << "Player Id " << data->winnerColor << " wins!\n";
 
         delete data;
     }
@@ -87,7 +78,7 @@ namespace Client
     int ClientGame::ThrowDice() {
         int result = 0;
 
-        if (turn >= 1 && turn <= 4) {
+        if (1 <= turn && turn < 4) {
             const int attempts = 3;
             std::cout << "First three turns, you have " << attempts << " attempts to throw 6...\n";
 

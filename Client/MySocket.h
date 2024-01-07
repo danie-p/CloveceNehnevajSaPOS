@@ -6,6 +6,23 @@
 #include <thread>
 #include <vector>
 
+struct GameData {
+    GameData(std::vector<std::string>* dataToParse)
+            : playerId(dataToParse->at(0)), board(dataToParse->at(1)),
+              playerOnTurn(dataToParse->at(2)), boardMessages(dataToParse->at(3)),
+              turn(dataToParse->at(4)), gameOver(dataToParse->at(5)),
+              winnerColor(dataToParse->at(6)), playerOnTurnColor(dataToParse->at(7)) {}
+
+    const std::string playerId;
+    const std::string board;
+    const std::string playerOnTurn;
+    const std::string boardMessages;
+    const std::string turn;
+    const std::string gameOver;
+    const std::string winnerColor;
+    const std::string playerOnTurnColor;
+};
+
 class MySocket {
 public:
     // umozni nadviazat spojenie so serverom
@@ -20,7 +37,7 @@ public:
     void sendData(const std::string& data);
     void sendEndMessage();
 
-    std::vector<std::string>* receiveData(int numOfMessagesToWaitFor);
+    GameData* receiveData(int numOfMessagesToWaitFor);
 protected:
     MySocket(SOCKET socket);
 private:
