@@ -35,7 +35,7 @@ namespace Server {
         std::condition_variable cvManagePlayerTurn;
         bool updateSent = false;
         bool turnManaged = true;
-
+        
     public:
         const std::string END_MESSAGE = "%";
         const std::string GAME_OVER = "GAME_OVER";
