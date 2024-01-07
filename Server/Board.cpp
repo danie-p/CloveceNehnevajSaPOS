@@ -163,6 +163,9 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 
     Pawn& pawn = *pawnPtr;
 
+    if (moveSteps != 0)
+        this->messages << "[" << pawn.player->getFullColor() << "] rolled number: " << moveSteps << "\n";
+
     int index = -1;
 
     // === START ===

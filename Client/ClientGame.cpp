@@ -36,7 +36,7 @@ namespace Client
             msgPlayerId = data->at(0);
             board = data->at(1);
             playerOnTurn = data->at(2);
-            boardMessages = "Last turn: " + (data->at(3).empty() ? "No data\n" : data->at(3)) + "\n";
+            boardMessages = "Last turn:\n" + (data->at(3).empty() ? "No data\n" : data->at(3)) + "\n";
             msgTurn = data->at(4);
 
             turn = std::stoi(msgTurn);
@@ -114,7 +114,7 @@ namespace Client
     }
 
     int ClientGame::PickPawn() {
-        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick the first one)";
+        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick the first one): ";
         std::string input = "";
         int result = 1;
         std::cin >> input;

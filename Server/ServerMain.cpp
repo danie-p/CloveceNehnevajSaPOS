@@ -13,7 +13,7 @@ int main() {
     std::string input;
     std::cin >> input;
     if (input == "create")
-        Server::Create(1048);
+        Server::Create(12300);
 
 
     return 0;

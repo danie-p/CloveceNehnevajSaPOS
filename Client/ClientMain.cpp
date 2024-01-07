@@ -18,7 +18,7 @@ int main()
     std::cout << "Input: ";
     std::string input;
     std::cin >> input;
-    cGame->Connect(input, 1048);
+    cGame->Connect(input, 12300);
 
     delete cGame;
 
