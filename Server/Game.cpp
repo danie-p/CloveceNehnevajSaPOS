@@ -9,7 +9,7 @@ namespace Server {
     Game::Game(std::vector<int> clientSockets) {
         char colors[] = {'R', 'G', 'B', 'Y'};
         for (int i = 0; i < clientSockets.size(); ++i) {
-            players.push_back(new Player(i + 1, clientSockets[i], 1, colors[i]));
+            players.push_back(new Player(i + 1, clientSockets[i], colors[i]));
         }
         std::cout << "Game instance created\n";
         this->board.initializeGrid();

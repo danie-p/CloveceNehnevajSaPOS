@@ -13,8 +13,8 @@ namespace Server
 	class Player
 	{
 	public:
-        Player(int id, int socket, int gameId, char color)
-        : id(id), socket(socket), gameId(gameId), color(color) {
+        Player(int id, int socket, char color)
+        : id(id), socket(socket), color(color) {
             switch (color) {
                 case 'R':
                     fullColor.append(RED).append("RED").append(RESET);
@@ -32,26 +32,16 @@ namespace Server
         };
 
 		int getId() const { return this->id; };
-		int getScore() const { return this->s; };
-		int getGameId() const { return this->gameId; };
 		char getColor() const { return this->color; };
-        std::mutex* getMutex() { return &this->mutex;}
         int getSocket() { return this->socket; }
         std::string getFullColor() const { return this->fullColor; };
 
-		void setId(int id) { this->id = id; };
-		void setScore(int score) { this->s = score; };
-		void setGameId(int gameId) { this->gameId = gameId; };
-		void setColor(char color) { this->color = color; };
 
 	private:
 		int id;
-		int s = 0;
-		int gameId;
 		char color;
         std::string fullColor;
         int socket;
-        std::mutex mutex;
 	};
 }
 
