@@ -18,9 +18,11 @@ namespace Client
     // Message order:
     // 0: playerId
     // 1: board
-    // 2: player on turn / game over message + winner id
+    // 2: player on turn
     // 3: board messages
     // 4: turn
+    // 5: game over message
+    // 6: winner color
     void ClientGame::Play() {
         std::vector<std::string> *data;
         std::string msgPlayerId;
@@ -28,16 +30,20 @@ namespace Client
         std::string playerOnTurn;
         std::string boardMessages;
         std::string msgTurn;
+        std::string gameOverStr;
+        std::string winnerColor;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-            data = socket->receiveData(5);
+            data = socket->receiveData(7);
 
             msgPlayerId = data->at(0);
             board = data->at(1);
             playerOnTurn = data->at(2);
             boardMessages = "Last turn:\n" + (data->at(3).empty() ? "No data\n" : data->at(3)) + "\n";
             msgTurn = data->at(4);
+            gameOverStr = data->at(5);
+            winnerColor = data->at(6);
 
             turn = std::stoi(msgTurn);
 
@@ -51,7 +57,7 @@ namespace Client
             YouAreColor(playerId);
 
             // check if it's game over
-            if (playerOnTurn.find(GAME_OVER) != std::string::npos) {
+            if (gameOverStr == GAME_OVER) {
                 gameOver = true;
                 break;
             }
@@ -73,9 +79,7 @@ namespace Client
         }
 
         std::cout << "The game is over!\n";
-        std::string winnerId = playerOnTurn.substr(playerOnTurn.size() - 2, playerOnTurn.size() - 1);
-        // TODO: better identify the winner (by color)
-        std::cout << "Player Id " << winnerId << " wins!\n";
+        std::cout << "Player Id " << winnerColor << " wins!\n";
 
         delete data;
     }
@@ -86,6 +90,7 @@ namespace Client
         if (turn >= 1 && turn <= 4) {
             const int attempts = 3;
             std::cout << "First three turns, you have " << attempts << " attempts to throw 6...\n";
+
             for (int i = 0; i < attempts; ++i) {
                 system("pause");
                 result = this->distrib(this->gen);

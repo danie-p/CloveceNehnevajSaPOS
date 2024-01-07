@@ -48,9 +48,11 @@ namespace Server {
     // Message order:
     // 0: playerId
     // 1: board
-    // 2: player on turn / game over message + winner id
+    // 2: player on turn
     // 3: board messages
     // 4: turn
+    // 5: game over message
+    // 6: winner color
     void Game::SendUpdate() {
         while (!gameOver) {
             std::list<std::string> messages;
@@ -61,18 +63,17 @@ namespace Server {
                     cvSendUpdate.wait(lock);
 
                 messages.push_back(board.toString());
-
-                if (!gameOver) {
-                    messages.push_back(std::to_string(playerIdOnTurn));
-                }
-                else {
-                    std::string winnerMsg = GAME_OVER;
-                    winnerMsg += std::to_string(board.getWinner()->getId());
-                    messages.push_back(winnerMsg);
-                }
-
+                messages.push_back(std::to_string(playerIdOnTurn));
                 messages.push_back(board.getMessages());
                 messages.push_back(std::to_string(turn));
+
+                if (gameOver) {
+                    messages.push_back(GAME_OVER);
+                    messages.push_back(board.getWinner()->getFullColor());
+                } else {
+                    messages.emplace_back("");
+                    messages.emplace_back("");
+                }
 
                 updateSent = true;
                 turnManaged = false;
