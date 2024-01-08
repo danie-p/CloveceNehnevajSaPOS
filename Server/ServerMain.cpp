@@ -12,8 +12,21 @@ int main() {
     std::cout << "Input: ";
     std::string input;
     std::cin >> input;
-    if (input == "create")
-        Server::Create(12300);
+
+    if (input == "create") {
+        std::cout << "Enter port to start the game server on:\n";
+        std::cout << "Input: ";
+        std::string portStr;
+        std::cin >> portStr;
+
+        try {
+            int port = std::stoi(portStr);
+            Server::Create(port);
+        }
+        catch (std::exception& e) {
+            std::cout << "Invalid input...\n";
+        }
+    }
 
 
     return 0;
