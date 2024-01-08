@@ -13,22 +13,6 @@ Server::Board::Board(std::vector<Player*>* players) :
 }
 
 Server::Board::~Board() {
-    // double delete??
-    // players are already deleted in Game::End()
-    // and vector (players) is not created by new so there's no need to delete it
-    /*
-    if (players != nullptr) {
-        for (int i = 0; i < players->size(); ++i) {
-            if (players->at(i) != nullptr) {
-                delete players->at(i);
-                players->at(i) = nullptr;
-            }
-        }
-
-        delete players;
-        players = nullptr;
-    }*/
-
     for (auto& row : this->grid) {
         for (auto& square : row) {
             if (!square.isEmpty() && square.getPawn()) {
