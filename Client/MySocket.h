@@ -37,7 +37,7 @@ public:
     void sendData(const std::string& data);
     void sendEndMessage();
 
-    GameData* receiveData(int numOfMessagesToWaitFor);
+    GameData receiveData(int numOfMessagesToWaitFor);
 protected:
     MySocket(SOCKET socket);
 private:

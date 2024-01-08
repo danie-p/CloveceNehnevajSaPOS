@@ -25,32 +25,33 @@ namespace Client
     // 6: winner color
     // 7: player on turn color
     void ClientGame::Play() {
-        GameData* data;
+        std::string winnerColor;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-            data = socket->receiveData(8);
+            GameData data = socket->receiveData(8);
 
-            turn = std::stoi(data->turn);
+            winnerColor = data.winnerColor;
+            turn = std::stoi(data.turn);
 
             if (1 == turn)
-                playerId = std::stoi(data->playerId);
+                playerId = std::stoi(data.playerId);
 
             std::cout << "\nTurn " << turn << "\n";
             YouAreColor(playerId);
             std::cout << "Game Board:\n";
-            std::cout << data->board;
+            std::cout << data.board;
             std::cout << "Last turn's events:\n";
-            std::cout << data->boardMessages;
+            std::cout << data.boardMessages;
             std::cout << "\n";
 
             // check if it's game over
-            if (data->gameOver == GAME_OVER) {
+            if (data.gameOver == GAME_OVER) {
                 gameOver = true;
                 break;
             }
 
-            if (data->playerOnTurn == std::to_string(playerId)) {
+            if (data.playerOnTurn == std::to_string(playerId)) {
                 std::cout << "It is your turn.\n";
 
                 int numThrown = ThrowDice();
@@ -65,14 +66,12 @@ namespace Client
                 socket->sendData(std::to_string(pawnPicked));
             }
             else {
-                std::cout << "It is player's " << data->playerOnTurn << " [" << data->playerOnTurnColor << "] turn.\n";
+                std::cout << "It is player's " << data.playerOnTurn << " [" << data.playerOnTurnColor << "] turn.\n";
             }
         }
 
         std::cout << "The game is over!\n";
-        std::cout << "Player [" << data->winnerColor << "] is the first one to place all pawns in their home and wins!\n";
-
-        delete data;
+        std::cout << "Player [" << winnerColor << "] is the first one to place all pawns in their home and wins!\n";
     }
 
     int ClientGame::ThrowDice() {

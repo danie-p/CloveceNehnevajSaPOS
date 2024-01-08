@@ -114,7 +114,7 @@ void MySocket::sendEndMessage() {
     this->sendData(this->endMessage);
 }
 
-GameData* MySocket::receiveData(int numOfMessagesToWaitFor) {
+GameData MySocket::receiveData(int numOfMessagesToWaitFor) {
     const int buffLen = 4096;
     char buffer [buffLen];
     memset(buffer, '\0', buffLen);
@@ -137,7 +137,7 @@ GameData* MySocket::receiveData(int numOfMessagesToWaitFor) {
         }
     }
 
-    return new GameData(&messages);
+    return GameData(&messages);
 }
 
 // sprava moze prist rozkuskovana na viacero sprav (dokopy ten isty obsah), resp viac sprav moze prist ako jedna velka => pocet sprav NIE je garantovany

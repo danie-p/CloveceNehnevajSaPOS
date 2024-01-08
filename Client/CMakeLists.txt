@@ -7,7 +7,8 @@ add_executable(Client ClientMain.cpp
         ClientGame.cpp
         ClientGame.h
         MySocket.cpp
-        MySocket.h)
+        MySocket.h
+)
 
 target_link_libraries(Client wsock32 ws2_32)
 

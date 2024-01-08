@@ -70,5 +70,7 @@ namespace Server
         std::vector<Player*>* players;
         Player* winner = nullptr;
         std::stringstream messages;
+
+        //int pocitadlo = 0;
     };
 }
