@@ -1,18 +1,18 @@
-CCOMP = g++
-SCOMP = g++
+CC = g++
 
-C_SOURCES = ./Client/ClientGame.cpp ./Client/ClientGame.cpp ./Client/MySocket.cpp
-S_SOURCES = ./Server/ServerMain.cpp ./Server/Board.cpp ./Server/Player.cpp ./Server/Square.cpp ./Server/ServerConnection.cpp ./Server/Game.cpp
-C_OBJECTS = $(C_SOURCES:.cpp=.o)
-S_OBJECTS = $(S_SOURCES:.cpp=.o)
+.PHONY: cleanClient cleanServer none
 
-all: client server
+none:
+	echo "Need to specify client/server explicitly (win/linux)"
 
-client:	$(C_OBJECTS)
-	$(CCOMP) $(C_SOURCES) -o outClient
+client: ./Client/ClientGame.cpp ./Client/ClientGame.h ./Client/ClientMain.cpp ./Client/MySocket.cpp ./Client/MySocket.h
+	$(CC) -o client ./Client/ClientGame.cpp ./Client/ClientMain.cpp ./Client/MySocket.cpp
 
-server:	$(S_OBJECTS)
-	$(SCOMP) $(S_SOURCES) -o outServer
+server: ./Server/Board.cpp ./Server/Board.h ./Server/Game.cpp ./Server/Game.h ./Server/Player.cpp ./Server/Player.h ./Server/ServerConnection.cpp ./Server/ServerConnection.h ./Server/ServerMain.cpp ./Server/Square.cpp ./Server/Square.h
+	$(CC) -o server ./Server/Board.cpp ./Server/Game.cpp ./Server/Player.cpp ./Server/ServerConnection.cpp ./Server/ServerMain.cpp ./Server/Square.cpp
 
-clean:
-	rm -f client server $(C_OBJECTS) $(S_OBJECTS) outClient out Server
+cleanClient:
+	del client
+
+cleanServer:
+	rm -f server
