@@ -70,7 +70,7 @@ namespace Client
         }
 
         std::cout << "The game is over!\n";
-        std::cout << "Player Id " << data->winnerColor << " wins!\n";
+        std::cout << "Player [" << data->winnerColor << "] is the first one to place all pawns in their home and wins!\n";
 
         delete data;
     }
@@ -78,7 +78,10 @@ namespace Client
     int ClientGame::ThrowDice() {
         int result = 0;
 
-        if (1 <= turn && turn < 4) {
+        // turn is incremented every time any of the players gets to make a move
+        // since we have 4 players, 1 round of the game consists of 4 turns of the players
+        // we want to let all 4 players have a chance to roll the dice 3x in the first round
+        if (1 <= turn && turn <= 4) {
             const int attempts = 3;
             std::cout << "First three turns, you have " << attempts << " attempts to throw 6...\n";
 
