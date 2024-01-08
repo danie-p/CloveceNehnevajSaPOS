@@ -127,10 +127,6 @@ GameData* MySocket::receiveData(int numOfMessagesToWaitFor) {
         while (receivedMsg.find(SOCKET_TERMINATE_CHAR) == std::string::npos) {
             recv(connectSocket, buffer, buffLen, 0);
             receivedMsg = buffer;
-            // generally, the client will receive message from server at the beginning of the game
-            // and then only after each turn, which may take several seconds to complete
-            // therefore we can sleep for a few seconds instead of checking the condition over and over again
-            std::this_thread::sleep_for(std::chrono::seconds(2));
         }
 
         int index = 0;

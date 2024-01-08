@@ -123,10 +123,6 @@ namespace Server {
                     while (receivedMsg.find(END_MESSAGE) == std::string::npos) {
                         read(player->getSocket(), buffer, buffLen);
                         receivedMsg = buffer;
-                        // the server will only receive message from player at the end of the turn,
-                        // with the turn lasting a few seconds
-                        // therefore we can sleep for a few seconds instead of checking the condition over and over again
-                        std::this_thread::sleep_for(std::chrono::seconds(2));
                     }
 
                     int index = 0;
