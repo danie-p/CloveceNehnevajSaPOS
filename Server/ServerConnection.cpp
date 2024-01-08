@@ -4,7 +4,24 @@
 
 #include "ServerConnection.h"
 
+Server::Game* game;
+
+void Server::SignalHandler(int signum) {
+    std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+    if (game != nullptr) {
+        game->DisconnectAll();
+        delete game;
+        game = nullptr;
+    }
+
+    exit(signum);
+}
+
+
 void Server::Create(int port) {
+    signal(SIGINT, SignalHandler);
+
     if (port <= 0) {
         std::cout << "Invalid port! (value: " << port << ")\n";
         return;
@@ -65,7 +82,9 @@ void Server::PlayGame(int clientSockets[]) {
         sockets.push_back(clientSockets[i]);
     }
 
-    Game game(sockets);
-    game.Begin();
-    game.End();
+    game = new Game(sockets);
+    game->Begin();
+    game->End();
+    delete game;
+    game = nullptr;
 }

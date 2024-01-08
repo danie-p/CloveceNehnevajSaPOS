@@ -32,6 +32,7 @@ namespace Server {
 
     const int PLAYER_COUNT = 4;
 
+    void SignalHandler(int signum);
     void Create(int port);
     void PlayGame(int clientSockets[]);
 }

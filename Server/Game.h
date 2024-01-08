@@ -35,6 +35,7 @@ namespace Server {
         std::condition_variable cvManagePlayerTurn;
         bool updateSent = false;
         bool turnManaged = true;
+        bool stopThreads = false;
         
     public:
         const std::string END_MESSAGE = "%";
@@ -46,6 +47,7 @@ namespace Server {
         void End();
         void SendUpdate();
         void ManagePlayerTurn();
+        void DisconnectAll();
     };
 
 }

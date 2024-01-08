@@ -31,6 +31,11 @@ namespace Client
             std::cout << "Waiting for turn...\n";
             GameData data = socket->receiveData(8);
 
+            if (data.playerId == "DISCONNECT") {
+                disconnected = true;
+                break;
+            }
+
             winnerColor = data.winnerColor;
             turn = std::stoi(data.turn);
 
@@ -70,8 +75,12 @@ namespace Client
             }
         }
 
-        std::cout << "The game is over!\n";
-        std::cout << "Player [" << winnerColor << "] is the first one to place all pawns in their home and wins!\n";
+        if (!disconnected) {
+            std::cout << "The game is over!\n";
+            std::cout << "Player [" << winnerColor << "] is the first one to place all pawns in their home and wins!\n";
+        } else {
+            std::cout << "Connection closed by server\n";
+        }
     }
 
     int ClientGame::ThrowDice() {

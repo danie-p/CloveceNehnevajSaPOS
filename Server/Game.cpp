@@ -15,6 +15,16 @@ namespace Server {
         this->board.initializeGrid();
     }
 
+    void Game::DisconnectAll() {
+        stopThreads = true;
+        for (auto& player : players) {
+            std::string msg = "DISCONNECT%";
+            for (int i = 0; i < 8; ++i) {
+                write(player->getSocket(), msg.c_str(), msg.size() + 1);
+            }
+        }
+    }
+
     Game::~Game() {
         End();
         std::cout << "Game instance destroyed\n";
@@ -56,6 +66,10 @@ namespace Server {
     // 7: player on turn color
     void Game::SendUpdate() {
         while (!gameOver) {
+            if (stopThreads) {
+                return;
+            }
+
             std::list<std::string> messages;
 
             {
@@ -108,6 +122,10 @@ namespace Server {
     // must wait for work done by the SendUpdate thread
     void Game::ManagePlayerTurn() {
         while (!gameOver) {
+            if (stopThreads) {
+                return;
+            }
+
             for (auto& player: players) {
 
                 int buffLen = 4096;

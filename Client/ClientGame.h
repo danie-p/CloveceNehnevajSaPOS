@@ -26,6 +26,7 @@ namespace Client
         std::random_device rd;
         std::mt19937 gen{rd()};
         std::uniform_int_distribution<> distrib{1, 6};
+        bool disconnected = false;
 
 	public:
         const std::string GAME_OVER = "GAME_OVER";
