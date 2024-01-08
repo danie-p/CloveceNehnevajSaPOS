@@ -106,14 +106,6 @@ void MySocket::sendData(const std::string &data) {
     buffer = NULL;
 }
 
-// potom dorobit, aby klient mohol aj prijimat data
-
-void MySocket::sendEndMessage() {
-    // poslat ukoncovaciu spravu!
-    // chcem uplne ukoncit komunikaciu, uz som poslala vsetky spravy (data), ktore som chcela poslat
-    this->sendData(this->endMessage);
-}
-
 GameData* MySocket::receiveData(int numOfMessagesToWaitFor) {
     const int buffLen = 4096;
     char buffer [buffLen];

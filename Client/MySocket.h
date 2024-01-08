@@ -35,7 +35,6 @@ public:
     // posielam retazec dat (vzdy po sieti posielam len retazec!!)
     // posielam text => nemusim prevadzat na little/big endian
     void sendData(const std::string& data);
-    void sendEndMessage();
 
     GameData* receiveData(int numOfMessagesToWaitFor);
 protected:

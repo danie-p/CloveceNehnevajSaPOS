@@ -35,13 +35,16 @@ namespace Server
 		char getColor() const { return this->color; };
         int getSocket() { return this->socket; }
         std::string getFullColor() const { return this->fullColor; };
+        bool getDisconnected() const { return this->disconnected; };
 
+        void setDisconnected(bool value) {this->disconnected = value;}
 
 	private:
 		int id;
 		char color;
         std::string fullColor;
         int socket;
+        bool disconnected;
 	};
 }
 

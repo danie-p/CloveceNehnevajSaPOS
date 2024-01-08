@@ -39,6 +39,7 @@ namespace Server {
     public:
         const std::string END_MESSAGE = "%";
         const std::string GAME_OVER = "GAME_OVER";
+        const std::string DISCONNECT_REQUEST = "DISCONNECT_REQUEST";
 
         Game(std::vector<int> clientSockets);
         ~Game();

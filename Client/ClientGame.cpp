@@ -31,46 +31,67 @@ namespace Client
             std::cout << "Waiting for turn...\n";
             data = socket->receiveData(8);
 
-            turn = std::stoi(data->turn);
+            std::cout << "Type 'c' to continue playing or 't' to disconnect, the press 'Enter'\n";
+            std::cout << "Input: ";
+            std::string input;
+            std::cin >> input;
+            if (input == "c") {
 
-            if (1 == turn)
-                playerId = std::stoi(data->playerId);
+                turn = std::stoi(data->turn);
 
-            std::cout << "\nTurn " << turn << "\n";
-            YouAreColor(playerId);
-            std::cout << "Game Board:\n";
-            std::cout << data->board;
-            std::cout << "Last turn's events:\n";
-            std::cout << data->boardMessages;
-            std::cout << "\n";
+                if (1 == turn)
+                    playerId = std::stoi(data->playerId);
 
-            // check if it's game over
-            if (data->gameOver == GAME_OVER) {
-                gameOver = true;
-                break;
-            }
+                std::cout << "\nTurn " << turn << "\n";
+                YouAreColor(playerId);
+                std::cout << "Game Board:\n";
+                std::cout << data->board;
+                std::cout << "Last turn's events:\n";
+                std::cout << data->boardMessages;
+                std::cout << "\n";
 
-            if (data->playerOnTurn == std::to_string(playerId)) {
-                std::cout << "It is your turn.\n";
+                // check if it's game over
+                if (data->gameOver == GAME_OVER) {
+                    gameOver = true;
+                    break;
+                }
 
-                int numThrown = ThrowDice();
+                if (data->playerOnTurn == std::to_string(playerId)) {
+                    std::cout << "It is your turn.\n";
 
-                int pawnPicked = 1;
-                if (numThrown != 0)
-                    pawnPicked = PickPawn();
+                    int numThrown = ThrowDice();
 
-                system("pause");
+                    int pawnPicked = 1;
+                    if (numThrown != 0)
+                        pawnPicked = PickPawn();
 
-                socket->sendData(std::to_string(numThrown));
-                socket->sendData(std::to_string(pawnPicked));
+                    system("pause");
+
+                    socket->sendData(std::to_string(numThrown));
+                    socket->sendData(std::to_string(pawnPicked));
+                } else {
+                    std::cout << "It is player's " << data->playerOnTurn << " [" << data->playerOnTurnColor
+                              << "] turn.\n";
+                }
             }
             else {
-                std::cout << "It is player's " << data->playerOnTurn << " [" << data->playerOnTurnColor << "] turn.\n";
+                disconnect = true;
+                break;
             }
         }
 
-        std::cout << "The game is over!\n";
-        std::cout << "Player [" << data->winnerColor << "] is the first one to place all pawns in their home and wins!\n";
+        if (!disconnect) {
+            std::cout << "The game is over!\n";
+            std::cout << "Player [" << data->winnerColor << "] is the first one to place all pawns in their home and wins!\n";
+        }
+        else {
+            std::cout << "Sending disconnect message to server...\n";
+
+            socket->sendData(DISCONNECT_REQUEST);
+            socket->sendData(DISCONNECT_REQUEST);
+
+            std::cout << "Disconnected.\n";
+        }
 
         delete data;
     }

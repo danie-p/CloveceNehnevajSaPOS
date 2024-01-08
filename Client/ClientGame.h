@@ -26,9 +26,11 @@ namespace Client
         std::random_device rd;
         std::mt19937 gen{rd()};
         std::uniform_int_distribution<> distrib{1, 6};
+        bool disconnect = false;
 
 	public:
         const std::string GAME_OVER = "GAME_OVER";
+        const std::string DISCONNECT_REQUEST = "DISCONNECT_REQUEST";
 
 		void Connect(std::string ipaddr, unsigned int port);
         void Play();
