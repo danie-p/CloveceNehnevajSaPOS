@@ -3,7 +3,7 @@ CC = g++
 .PHONY: cleanClient cleanServer none
 
 none:
-	echo "Need to specify client/server explicitly (win/linux)"
+	echo "Need to specify client/server explicitly (win/linux) i.e. 'make client'/'make server'"
 
 client: ./Client/ClientGame.cpp ./Client/ClientGame.h ./Client/ClientMain.cpp ./Client/MySocket.cpp ./Client/MySocket.h
 	$(CC) -o client ./Client/ClientGame.cpp ./Client/ClientMain.cpp ./Client/MySocket.cpp
