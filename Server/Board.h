@@ -71,6 +71,5 @@ namespace Server
         Player* winner = nullptr;
         std::stringstream messages;
 
-        int pocitadlo = 0;
     };
 }
