@@ -81,7 +81,7 @@ namespace Client
             }
 
             if (pawnPicked == -1) {
-                disconnected = true;
+                disconnect = true;
                 break;
             }
         }
@@ -90,7 +90,11 @@ namespace Client
             std::cout << "The game is over!\n";
             std::cout << "Player [" << winnerColor << "] is the first one to place all pawns in their home and wins!\n";
         } else {
-            std::cout << "Connection closed by server\n";
+            if (!disconnect) {
+                std::cout << "Connection closed by server!\n";
+            } else {
+                std::cout << "You have disconnected!\n";
+            }
         }
     }
 
@@ -132,7 +136,7 @@ namespace Client
     }
 
     int ClientGame::PickPawn() {
-        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick the first one): ";
+        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick the first one) or type 'exit' to disconnect: ";
         std::string input = "";
         int result = 1;
         std::cin >> input;

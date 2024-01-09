@@ -27,6 +27,7 @@ namespace Client
         std::mt19937 gen{rd()};
         std::uniform_int_distribution<> distrib{1, 6};
         bool disconnected = false;
+        bool disconnect = false;
 
 	public:
         const std::string GAME_OVER = "GAME_OVER";
