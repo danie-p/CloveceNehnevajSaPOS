@@ -86,7 +86,7 @@ namespace Client
             }
         }
 
-        if (!disconnected) {
+        if (!disconnected && !disconnect) {
             std::cout << "The game is over!\n";
             std::cout << "Player [" << winnerColor << "] is the first one to place all pawns in their home and wins!\n";
         } else {
