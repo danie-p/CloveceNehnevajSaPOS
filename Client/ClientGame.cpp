@@ -24,12 +24,13 @@ namespace Client
     // 5: game over message
     // 6: winner color
     // 7: player on turn color
+    // 8: last disconnected player color
     void ClientGame::Play() {
         std::string winnerColor;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-            GameData data = socket->receiveData(8);
+            GameData data = socket->receiveData(9);
 
             if (data.playerId == "DISCONNECT") {
                 disconnected = true;
@@ -47,7 +48,11 @@ namespace Client
             std::cout << "Game Board:\n";
             std::cout << data.board;
             std::cout << "Last turn's events:\n";
-            std::cout << data.boardMessages;
+            if (data.lastDisconnectedPlayerColor.empty()) {
+                std::cout << data.boardMessages;
+            } else {
+                std::cout << "Player [" << data.lastDisconnectedPlayerColor << "] has disconnected.\n";
+            }
             std::cout << "\n";
 
             // check if it's game over
@@ -56,12 +61,13 @@ namespace Client
                 break;
             }
 
+            int pawnPicked = 1;
+
             if (data.playerOnTurn == std::to_string(playerId)) {
                 std::cout << "It is your turn.\n";
 
                 int numThrown = ThrowDice();
 
-                int pawnPicked = 1;
                 if (numThrown != 0)
                     pawnPicked = PickPawn();
 
@@ -72,6 +78,11 @@ namespace Client
             }
             else {
                 std::cout << "It is player's " << data.playerOnTurn << " [" << data.playerOnTurnColor << "] turn.\n";
+            }
+
+            if (pawnPicked == -1) {
+                disconnected = true;
+                break;
             }
         }
 
@@ -131,8 +142,11 @@ namespace Client
             result = 3;
         else if (input == "4")
             result = 4;
+        else if (input == "exit")
+            result = -1;
 
-        std::cout << "You picked pawn " << result << "\n";
+        if (result != -1)
+            std::cout << "You picked pawn " << result << "\n";
         return result;
     }
 

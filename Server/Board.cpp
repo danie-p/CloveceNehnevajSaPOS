@@ -134,7 +134,7 @@ void Server::Board::display()
 
 bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 {
-    //this->pocitadlo++;
+    this->pocitadlo++;
     this->messages.str("");
     this->messages.clear();
 
@@ -310,6 +310,7 @@ bool Server::Board::movePawn(int playerId, char pawnNum, int moveSteps)
 
 bool Server::Board::isGameOver()
 {
+    /*
     for (auto home : this->homes) {
         bool homeIsFull = true;
         for (auto square : *home) {
@@ -324,12 +325,12 @@ bool Server::Board::isGameOver()
     }
 
     return false;
+     */
 
     // for purposes of testing early end of game
-    /*
+
     this->winner = startY.at(0)->getPawn()->player;
     return this->pocitadlo >= 4;
-     */
 }
 
 /*

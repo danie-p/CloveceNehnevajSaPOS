@@ -11,7 +11,8 @@ struct GameData {
             : playerId(dataToParse->at(0)), board(dataToParse->at(1)),
               playerOnTurn(dataToParse->at(2)), boardMessages(dataToParse->at(3)),
               turn(dataToParse->at(4)), gameOver(dataToParse->at(5)),
-              winnerColor(dataToParse->at(6)), playerOnTurnColor(dataToParse->at(7)) {}
+              winnerColor(dataToParse->at(6)), playerOnTurnColor(dataToParse->at(7)),
+              lastDisconnectedPlayerColor(dataToParse->at(8)){}
 
     const std::string playerId;
     const std::string board;
@@ -21,6 +22,7 @@ struct GameData {
     const std::string gameOver;
     const std::string winnerColor;
     const std::string playerOnTurnColor;
+    const std::string lastDisconnectedPlayerColor;
 };
 
 class MySocket {

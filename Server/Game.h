@@ -36,7 +36,10 @@ namespace Server {
         bool updateSent = false;
         bool turnManaged = true;
         bool stopThreads = false;
-        
+
+        int numOfDisconnectedPlayers = 0;
+        std::string lastDisconnectedPlayerColor;
+
     public:
         const std::string END_MESSAGE = "%";
         const std::string GAME_OVER = "GAME_OVER";

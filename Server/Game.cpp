@@ -64,6 +64,7 @@ namespace Server {
     // 5: game over message
     // 6: winner color
     // 7: player on turn color
+    // 8: last disconnected player color
     void Game::SendUpdate() {
         while (!gameOver) {
             if (stopThreads) {
@@ -91,6 +92,7 @@ namespace Server {
                 }
 
                 messages.push_back(players[playerIdOnTurn - 1]->getFullColor());
+                messages.push_back(this->lastDisconnectedPlayerColor);
 
                 updateSent = true;
                 turnManaged = false;
@@ -99,16 +101,18 @@ namespace Server {
 
             std::cout << "Sending id, board and id on turn to clients...\n";
             for (auto& player : players) {
-                messages.push_front(std::to_string(player->getId()));
+                if (!player->getDisconnected()) {
+                    messages.push_front(std::to_string(player->getId()));
 
-                std::string finalMessage = "";
-                for (const auto & message : messages) {
-                    finalMessage += message;
-                    finalMessage += END_MESSAGE;
+                    std::string finalMessage = "";
+                    for (const auto &message: messages) {
+                        finalMessage += message;
+                        finalMessage += END_MESSAGE;
+                    }
+
+                    write(player->getSocket(), finalMessage.c_str(), finalMessage.size() + 1);
+                    messages.pop_front();
                 }
-
-                write(player->getSocket(), finalMessage.c_str(), finalMessage.size() + 1);
-                messages.pop_front();
             }
 
             if (gameOver)
@@ -127,61 +131,72 @@ namespace Server {
             }
 
             for (auto& player: players) {
+                if (!player->getDisconnected()) {
+                    int buffLen = 4096;
+                    char buffer[buffLen];
+                    bzero(buffer, buffLen);
 
-                int buffLen = 4096;
-                char buffer[buffLen];
-                bzero(buffer, buffLen);
+                    std::vector<std::string> *messages = new std::vector<std::string>();
+                    int msgCount = 0;
 
-                std::vector<std::string> *messages = new std::vector<std::string>();
-                int msgCount = 0;
+                    std::cout << "Reading input from client " << player->getId() << "...\n";
+                    while (msgCount < 2) { // receive 2 messages: 1. throw; 2. pawn number
+                        std::string receivedMsg = "";
+                        while (receivedMsg.find(END_MESSAGE) == std::string::npos) {
+                            read(player->getSocket(), buffer, buffLen);
+                            receivedMsg = buffer;
+                        }
 
-                std::cout << "Reading input from client " << player->getId() << "...\n";
-                while (msgCount < 2) { // receive 2 messages: 1. throw; 2. pawn number
-                    std::string receivedMsg = "";
-                    while (receivedMsg.find(END_MESSAGE) == std::string::npos) {
-                        read(player->getSocket(), buffer, buffLen);
-                        receivedMsg = buffer;
+                        int index = 0;
+                        while ((index = receivedMsg.find(END_MESSAGE)) != std::string::npos) {
+                            messages->push_back(receivedMsg.substr(0, index));
+                            receivedMsg = receivedMsg.substr(index + 1);
+                            msgCount++;
+                        }
                     }
 
-                    int index = 0;
-                    while ((index = receivedMsg.find(END_MESSAGE)) != std::string::npos) {
-                        messages->push_back(receivedMsg.substr(0, index));
-                        receivedMsg = receivedMsg.substr(index + 1);
-                        msgCount++;
+                    {
+                        std::unique_lock<std::mutex> lock(dataLock);
+                        if (!updateSent)
+                            cvManagePlayerTurn.wait(lock);
+
+                        int newIdOnTurn = playerIdOnTurn % players.size() + 1;
+                        while (players.at(newIdOnTurn - 1)->getDisconnected()) {
+                            newIdOnTurn = newIdOnTurn % players.size() + 1;
+                        }
+
+                        playerIdOnTurn = newIdOnTurn;
+
+                        int numThrown = std::stoi(messages->at(0));
+                        char pawnNum = messages->at(1).c_str()[0];
+
+                        if (pawnNum == '-') {
+                            std::cout << "Client " << player->getId() << " has requested to disconnect.\n";
+                            player->setDisconnected(true);
+                            this->numOfDisconnectedPlayers++;
+                            this->lastDisconnectedPlayerColor = player->getFullColor();
+                        } else {
+                            this->lastDisconnectedPlayerColor = "";
+                            board.movePawn(player->getId(), pawnNum, numThrown);
+                        }
+
+                        turn++;
+
+                        if (board.isGameOver() || this->numOfDisconnectedPlayers == this->players.size())
+                            gameOver = true;
+
+                        turnManaged = true;
+                        updateSent = false;
+                        std::cout << "Client " << player->getId() << " finished his turn\n";
+
+                        cvSendUpdate.notify_one();
+
+                        delete messages;
+
+                        if (gameOver)
+                            break;
                     }
                 }
-
-                {
-                    std::unique_lock<std::mutex> lock(dataLock);
-                    if (!updateSent)
-                        cvManagePlayerTurn.wait(lock);
-
-                    int newIdOnTurn = playerIdOnTurn + 1;
-                    if (newIdOnTurn > players.size())
-                        newIdOnTurn = 1;
-
-                    playerIdOnTurn = newIdOnTurn;
-
-                    int numThrown = std::stoi(messages->at(0));
-                    char pawnNum = messages->at(1).c_str()[0];
-
-                    board.movePawn(player->getId(), pawnNum, numThrown);
-
-                    turn++;
-
-                    if (board.isGameOver())
-                        gameOver = true;
-
-                    turnManaged = true;
-                    updateSent = false;
-                    std::cout << "Client " << player->getId() << " finished his turn\n";
-                    cvSendUpdate.notify_one();
-
-                    if (gameOver)
-                        break;
-                }
-
-                delete messages;
             }
         }
     }
