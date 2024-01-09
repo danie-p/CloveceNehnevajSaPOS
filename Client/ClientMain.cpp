@@ -5,7 +5,7 @@
 int main()
 {
     using namespace Client;
-    
+
 
     std::cout << "**** Clovece Nehnevaj Sa ****\n\n";
     std::cout << "Welcome to the game (client)\n";

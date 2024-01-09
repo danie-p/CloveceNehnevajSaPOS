@@ -24,57 +24,62 @@ namespace Client
     // 5: game over message
     // 6: winner color
     // 7: player on turn color
+    // 8: last disconnected player color
     void ClientGame::Play() {
-        GameData* data;
+        std::string winnerColor;
 
         while (!gameOver) {
             std::cout << "Waiting for turn...\n";
-            data = socket->receiveData(8);
+            GameData* data = socket->receiveData(9);
 
-            std::cout << "Type 'c' to continue playing or 't' to disconnect, the press 'Enter'\n";
-            std::cout << "Input: ";
-            std::string input;
-            std::cin >> input;
-            if (input == "c") {
+            if (data->playerId == "DISCONNECT") {
+                break;
+            }
 
-                turn = std::stoi(data->turn);
+            winnerColor = data->winnerColor;
+            turn = std::stoi(data->turn);
 
-                if (1 == turn)
-                    playerId = std::stoi(data->playerId);
+            if (1 == turn)
+                playerId = std::stoi(data->playerId);
 
-                std::cout << "\nTurn " << turn << "\n";
-                YouAreColor(playerId);
-                std::cout << "Game Board:\n";
-                std::cout << data->board;
-                std::cout << "Last turn's events:\n";
+            std::cout << "\nTurn " << turn << "\n";
+            YouAreColor(playerId);
+            std::cout << "Game Board:\n";
+            std::cout << data->board;
+            std::cout << "Last turn's events:\n";
+            if (data->lastDisconnectedPlayerColor.empty())
                 std::cout << data->boardMessages;
-                std::cout << "\n";
+            if (!data->lastDisconnectedPlayerColor.empty())
+                std::cout << "Player [" << data->lastDisconnectedPlayerColor << "] has disconnected.\n";
+            std::cout << "\n";
 
-                // check if it's game over
-                if (data->gameOver == GAME_OVER) {
-                    gameOver = true;
-                    break;
-                }
+            // check if it's game over
+            if (data->gameOver == GAME_OVER) {
+                gameOver = true;
+                break;
+            }
 
-                if (data->playerOnTurn == std::to_string(playerId)) {
-                    std::cout << "It is your turn.\n";
+            int pawnPicked = 1;
 
-                    int numThrown = ThrowDice();
+            if (data->playerOnTurn == std::to_string(playerId)) {
+                std::cout << "It is your turn.\n";
 
-                    int pawnPicked = 1;
-                    if (numThrown != 0)
-                        pawnPicked = PickPawn();
+                int numThrown = ThrowDice();
 
-                    system("pause");
+                pawnPicked = 1;
+                if (numThrown != 0)
+                    pawnPicked = PickPawn();
 
-                    socket->sendData(std::to_string(numThrown));
-                    socket->sendData(std::to_string(pawnPicked));
-                } else {
-                    std::cout << "It is player's " << data->playerOnTurn << " [" << data->playerOnTurnColor
-                              << "] turn.\n";
-                }
+                system("pause");
+
+                socket->sendData(std::to_string(numThrown));
+                socket->sendData(std::to_string(pawnPicked));
             }
             else {
+                std::cout << "It is player's " << data->playerOnTurn << " [" << data->playerOnTurnColor << "] turn.\n";
+            }
+
+            if (pawnPicked == -1) {
                 disconnect = true;
                 break;
             }
@@ -82,18 +87,10 @@ namespace Client
 
         if (!disconnect) {
             std::cout << "The game is over!\n";
-            std::cout << "Player [" << data->winnerColor << "] is the first one to place all pawns in their home and wins!\n";
-        }
-        else {
-            std::cout << "Sending disconnect message to server...\n";
-
-            socket->sendData(DISCONNECT_REQUEST);
-            socket->sendData(DISCONNECT_REQUEST);
-
+            std::cout << "Player [" << winnerColor << "] is the first one to place all pawns in their home and wins!\n";
+        } else {
             std::cout << "Disconnected.\n";
         }
-
-        delete data;
     }
 
     int ClientGame::ThrowDice() {
@@ -134,7 +131,7 @@ namespace Client
     }
 
     int ClientGame::PickPawn() {
-        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick the first one): ";
+        std::cout << "Pick which pawn you wish to move: 1, 2, 3, 4 (type anything to pick pawn 1) or type 'exit' to disconnect: ";
         std::string input = "";
         int result = 1;
         std::cin >> input;
@@ -144,8 +141,11 @@ namespace Client
             result = 3;
         else if (input == "4")
             result = 4;
+        else if (input == "exit")
+            result = -1;
 
-        std::cout << "You picked pawn " << result << "\n";
+        if (result != -1)
+            std::cout << "You picked pawn " << result << "\n";
         return result;
     }
 

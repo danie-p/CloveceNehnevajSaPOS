@@ -35,6 +35,9 @@ namespace Server {
         std::condition_variable cvManagePlayerTurn;
         bool updateSent = false;
         bool turnManaged = true;
+
+        int numOfDisconnectedPlayers = 0;
+        std::string lastDisconnectedPlayerColor;
         
     public:
         const std::string END_MESSAGE = "%";

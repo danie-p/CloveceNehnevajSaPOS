@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <mutex>
+#include <chrono>
 
 #define RESET   "\033[0m"
 #define RED     "\033[31m"
@@ -36,7 +37,6 @@ namespace Server
         int getSocket() { return this->socket; }
         std::string getFullColor() const { return this->fullColor; };
         bool getDisconnected() const { return this->disconnected; };
-
         void setDisconnected(bool value) {this->disconnected = value;}
 
 	private:
@@ -45,6 +45,7 @@ namespace Server
         std::string fullColor;
         int socket;
         bool disconnected;
-	};
+
+    };
 }
 
