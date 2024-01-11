@@ -83,7 +83,7 @@ namespace Server {
                 messages.push_back(board.getMessages());
                 messages.push_back(std::to_string(turn));
 
-                if (gameOver) {
+                if (gameOver && numOfDisconnectedPlayers != players.size()) {
                     messages.push_back(GAME_OVER);
                     messages.push_back(board.getWinner()->getFullColor());
                 } else {
